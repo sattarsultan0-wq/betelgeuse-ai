@@ -1,13 +1,15 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createGlassDisplacement, supportsGlassRefraction } from './glassOptics';
+import HeaderMediaGlass from './HeaderMediaGlass';
 
 export default function HeaderGlass() {
   const id = `header-glass-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const ref = useRef(null);
   const [map, setMap] = useState(null);
+  const [svgSupported] = useState(supportsGlassRefraction);
 
   useEffect(() => {
-    if (!supportsGlassRefraction()) return;
+    if (!svgSupported) return;
     let timer,
       previousWidth = 0,
       previousHeight = 0;
@@ -31,14 +33,14 @@ export default function HeaderGlass() {
       observer.disconnect();
       clearTimeout(timer);
     };
-  }, []);
+  }, [svgSupported]);
 
   return (
     <div
       className="header-glass"
       ref={ref}
       aria-hidden="true"
-      data-refraction={map ? 'svg' : 'fallback'}
+      data-refraction={map ? 'svg' : svgSupported ? 'fallback' : 'media'}
     >
       {map && (
         <svg className="header-glass-defs" xmlns="http://www.w3.org/2000/svg">
@@ -77,6 +79,7 @@ export default function HeaderGlass() {
         className="header-glass-backdrop"
         style={map ? { backdropFilter: `blur(0.65px) url("#${id}") brightness(1.16)` } : undefined}
       />
+      {!svgSupported && <HeaderMediaGlass />}
       <div className="header-glass-tint" />
       <div className="header-glass-reflection" />
       <div className="header-glass-rim" />

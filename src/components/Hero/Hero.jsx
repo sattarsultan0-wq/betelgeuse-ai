@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, ArrowDown, Play } from 'lucide-react';
+import { heroMedia } from '../../assets/media';
+import useInlineVideo from '../../hooks/useInlineVideo';
 export default function Hero() {
-  const ref = useRef(null),
-    [ready, setReady] = useState(false);
+  const ref = useRef(null);
   const reduced = useReducedMotion();
+  const video = useInlineVideo(heroMedia.video, { group: 'hero', autoplay: !reduced });
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 130]);
   return (
@@ -12,6 +14,7 @@ export default function Hero() {
       <motion.div className="hero-background" style={{ y }}>
         <img
           className="hero-poster"
+          src={heroMedia.poster}
           alt=""
           fetchPriority="high"
           width="1600"
@@ -19,15 +22,13 @@ export default function Hero() {
         />
         {!reduced && (
           <video
-            className={ready ? 'hero-video ready' : 'hero-video'}
-            src="/images/videoplayback.mp4"
-            poster="/images/videoplayback.mp4"
-            autoPlay
+            ref={video.ref}
+            className={video.ready ? 'hero-video ready' : 'hero-video'}
+            poster={heroMedia.poster}
+            preload="metadata"
             muted
             loop
             playsInline
-            onLoadedData={() => setReady(true)}
-            onError={() => setReady(false)}
             aria-hidden="true"
           />
         )}
@@ -69,6 +70,11 @@ export default function Hero() {
         </div>
       </motion.div>
       <div className="hero-bottom">
+        {video.blocked && (
+          <button className="glass-button compact hero-video-start" onClick={video.play}>
+            <Play size={14} /> Включить фоновое видео
+          </button>
+        )}
         <a href="#showcase" className="scroll-indicator">
           <ArrowDown size={18} />
           <span>ЛИСТАЙ. ВДОХНОВЛЯЙСЯ.</span>

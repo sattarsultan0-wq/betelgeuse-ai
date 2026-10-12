@@ -1,41 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Play, X } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowUpRight, Play } from 'lucide-react';
 import { showcases } from '../../assets/showcase';
 import Modal from '../UI/Modal';
+import useInlineVideo from '../../hooks/useInlineVideo';
 function Card({ item, onSelect, duplicate }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!item.video || !ref.current) return;
-    const video = ref.current;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !document.hidden) video.play().catch(() => {});
-        else video.pause();
-      },
-      { rootMargin: '50px' },
-    );
-    observer.observe(video);
-    const visibility = () => {
-      if (document.hidden) video.pause();
-    };
-    document.addEventListener('visibilitychange', visibility);
-    return () => {
-      observer.disconnect();
-      document.removeEventListener('visibilitychange', visibility);
-    };
-  }, [item.video]);
+  const video = useInlineVideo(item.video);
   return (
     <button
       className="showcase-card"
       tabIndex={duplicate ? -1 : 0}
       onClick={() => onSelect(item)}
-      aria-label={`Открыть концепт: ${item.title}`}
+      aria-label={`Открыть ${item.video ? 'видео' : 'концепт'}: ${item.title}`}
     >
       <img src={item.poster} alt="" loading="lazy" width="720" height="450" />
       {item.video && (
         <video
-          ref={ref}
-          src={item.video}
+          ref={video.ref}
+          className={video.ready && !video.failed ? 'ready' : ''}
+          data-video-state={
+            video.failed ? 'failed' : video.blocked ? 'blocked' : video.ready ? 'ready' : 'idle'
+          }
           muted
           loop
           playsInline
@@ -55,6 +39,35 @@ function Card({ item, onSelect, duplicate }) {
         <ArrowUpRight size={18} />
       </span>
     </button>
+  );
+}
+
+function VideoPreview({ item }) {
+  const video = useInlineVideo(item.video, { group: 'dialog' });
+  return (
+    <>
+      <video
+        ref={video.ref}
+        className="concept-preview concept-video"
+        src={item.video}
+        poster={item.poster}
+        controls
+        muted
+        playsInline
+        loop
+        preload="metadata"
+      />
+      {video.blocked && (
+        <button className="glass-button" onClick={video.play}>
+          <Play size={16} /> Смотреть видео
+        </button>
+      )}
+      {video.failed && (
+        <p className="error" role="alert">
+          Видео не удалось загрузить. Проверь подключение и доступность файла.
+        </p>
+      )}
+    </>
   );
 }
 export default function VideoShowcase() {
@@ -104,10 +117,15 @@ export default function VideoShowcase() {
         })}
       </div>
       <p className="showcase-note container">
-        Авторские визуальные концепты. Галерея AI-видео появится после первых генераций.
+        Нажми на карточку, чтобы посмотреть видео и использовать идею.
       </p>
       <Modal open={!!selected} title={selected?.title || ''} onClose={() => setSelected(null)}>
-        {selected && <img className="concept-preview" src={selected.poster} alt={selected.title} />}
+        {selected &&
+          (selected.video ? (
+            <VideoPreview key={selected.id} item={selected} />
+          ) : (
+            <img className="concept-preview" src={selected.poster} alt={selected.title} />
+          ))}
         <p className="muted">{selected?.prompt}</p>
         <button
           className="glass-button primary"

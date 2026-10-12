@@ -54,7 +54,7 @@ export function createGlassDisplacement(width, height, radius = height / 2) {
 
 export function supportsGlassRefraction() {
   // CSS.supports alone only tests syntax. WebKit accepts url() but currently
-  // does not render this SVG backdrop operation; keep its layered CSS fallback.
+  // does not render this SVG backdrop operation; use the media lens + CSS glass.
   return (
     typeof CSS !== 'undefined' &&
     CSS.supports('backdrop-filter', 'url("#glass-support-check")') &&

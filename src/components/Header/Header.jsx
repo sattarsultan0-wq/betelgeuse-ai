@@ -21,7 +21,19 @@ export default function Header() {
     bounds = useRef(null);
   useEffect(() => () => cancelAnimationFrame(pointerFrame.current), []);
   useEffect(() => {
-    const update = () => setScrolled(window.scrollY > 30);
+    const update = () => {
+      setScrolled(window.scrollY > 30);
+      if (
+        window.matchMedia('(hover: none)').matches &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) {
+        header.current?.style.setProperty(
+          '--glass-pointer-x',
+          `${48 + Math.sin(window.scrollY * 0.006) * 18}%`,
+        );
+        header.current?.style.setProperty('--glass-pointer-y', '15%');
+      }
+    };
     update();
     window.addEventListener('scroll', update, { passive: true });
     return () => window.removeEventListener('scroll', update);
