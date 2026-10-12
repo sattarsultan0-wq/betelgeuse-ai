@@ -19,6 +19,7 @@ export function createGlassLens() {
           x: new Float32Array(width * height),
           y: new Float32Array(width * height),
           gain: new Float32Array(width * height),
+          alpha: new Uint8ClampedArray(width * height),
         };
         for (let py = 0; py < height; py++) {
           for (let px = 0; px < width; px++) {
@@ -33,19 +34,16 @@ export function createGlassLens() {
             const distance = length + Math.min(Math.max(qx, qy), 0) - radius;
             const nx = length ? (ox / length) * Math.sign(x) : Math.sign(x);
             const ny = length ? (oy / length) * Math.sign(y) : 0;
-            const edge = Math.max(0, Math.min(1, 1 + distance / (bounds.height * 0.42)));
-            const bend = edge * edge * (3 - 2 * edge) * 25;
-            const interior = 1 - edge;
-            const dx =
-              (-nx * bend -
-                x * 0.035 * interior +
-                Math.sin((x / bounds.width) * Math.PI * 2) * 3 * interior) *
-              strength;
-            const dy =
-              (-ny * bend -
-                y * 0.13 * interior +
-                Math.sin((y / bounds.height) * Math.PI) * 4 * interior) *
-              strength;
+            // A narrow, gentle bevel. The center stays transparent, using the
+            // real CSS backdrop instead of magnifying the reconstructed scene.
+            const depth = Math.max(0, -distance);
+            const bevel = Math.min(12, bounds.height * 0.18);
+            const edge = Math.max(0, 1 - depth / bevel);
+            const curve = edge * edge * (3 - 2 * edge);
+            const outerFade = Math.min(1, depth / 0.85);
+            const bend = curve * outerFade * 5.5;
+            const dx = -nx * bend * strength;
+            const dy = -ny * bend * strength;
             const sx = Math.max(
               0,
               Math.min(
@@ -68,7 +66,8 @@ export function createGlassLens() {
             lookup.index[i] = (Math.floor(sy) * scene.canvas.width + Math.floor(sx)) * 4;
             lookup.x[i] = sx - Math.floor(sx);
             lookup.y[i] = sy - Math.floor(sy);
-            lookup.gain[i] = 1.1 + edge * 0.12;
+            lookup.gain[i] = 1.08 + curve * 0.025;
+            lookup.alpha[i] = Math.round(curve * outerFade * 255);
           }
         }
       }
@@ -76,6 +75,9 @@ export function createGlassLens() {
       const row = scene.canvas.width * 4,
         output = pixels;
       for (let i = 0; i < lookup.index.length; i++) {
+        const out = i * 4;
+        output[out + 3] = lookup.alpha[i];
+        if (!lookup.alpha[i]) continue;
         const p = lookup.index[i],
           fx = lookup.x[i],
           fy = lookup.y[i],
@@ -84,14 +86,12 @@ export function createGlassLens() {
           b = fx * (1 - fy),
           c = (1 - fx) * fy,
           d = fx * fy;
-        const out = i * 4;
         for (let channel = 0; channel < 3; channel++) {
           const s = p + channel;
           output[out + channel] =
             (source[s] * a + source[s + 4] * b + source[s + row] * c + source[s + row + 4] * d) *
             gain;
         }
-        output[out + 3] = 255;
       }
       return { pixels: output, width, height };
     },

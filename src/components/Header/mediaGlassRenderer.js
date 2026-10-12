@@ -3,7 +3,8 @@ import { createGlassLens } from './glassLens';
 // The small pixel pass runs off the UI thread. Canvas 2D remains the fallback
 // when module workers are unavailable/blocked; there is no WebGL dependency.
 export function createMediaGlassRenderer(canvas) {
-  const context = canvas.getContext('2d', { alpha: false });
+  // Only the refracted bevel is painted; the native backdrop supplies the center.
+  const context = canvas.getContext('2d', { alpha: true });
   if (!context) return null;
   const fallback = createGlassLens(),
     pending = new Map();
