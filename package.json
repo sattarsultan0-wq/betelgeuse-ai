@@ -1,0 +1,27 @@
+{
+  "name": "betelgeuse-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "assets": "node scripts/create-assets.mjs"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
+    "motion": "^12.16.0",
+    "lucide-react": "^0.511.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5",
+    "@vitejs/plugin-react": "^4.5.1",
+    "sharp": "^0.35.5"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

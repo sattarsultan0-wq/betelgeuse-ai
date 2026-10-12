@@ -1,0 +1,83 @@
+import { useRef, useState } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
+import { ArrowUpRight, ArrowDown, Play } from 'lucide-react';
+export default function Hero() {
+  const ref = useRef(null),
+    [ready, setReady] = useState(false);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
+  const y = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 130]);
+  return (
+    <section className="hero" id="home" ref={ref}>
+      <motion.div className="hero-background" style={{ y }}>
+        <img
+          className="hero-poster"
+          alt=""
+          fetchPriority="high"
+          width="1600"
+          height="1000"
+        />
+        {!reduced && (
+          <video
+            className={ready ? 'hero-video ready' : 'hero-video'}
+            src="/images/videoplayback.mp4"
+            poster="/images/videoplayback.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            onLoadedData={() => setReady(true)}
+            onError={() => setReady(false)}
+            aria-hidden="true"
+          />
+        )}
+      </motion.div>
+      <div className="hero-overlay" />
+      <div className="hero-topline">
+        <span className="eyebrow">
+          <span className="live-dot" /> НОВАЯ ЭРА ТВОРЧЕСТВА
+        </span>
+        <span className="hero-coordinate">α ORIONIS · 05h 55m 10s</span>
+      </div>
+      <motion.div
+        className="hero-content"
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="hero-label">ИЗ ВООБРАЖЕНИЯ — В РЕАЛЬНОСТЬ</div>
+        <h1>
+          СОЗДАВАЙ ВИДЕО,
+          <br />
+          КОТОРЫЕ СТАНОВЯТСЯ
+          <br />
+          <span>ТРЕНДАМИ.</span>
+        </h1>
+        <p>
+          Превращай идеи, фотографии и текст в невероятные
+          <br className="desktop-break" /> видео с помощью искусственного интеллекта.
+        </p>
+        <div className="hero-buttons">
+          <a className="glass-button primary" href="#generator">
+            Начать создавать
+            <ArrowUpRight size={19} />
+          </a>
+          <a className="glass-button" href="#showcase">
+            <Play size={15} />
+            Смотреть примеры
+          </a>
+        </div>
+      </motion.div>
+      <div className="hero-bottom">
+        <a href="#showcase" className="scroll-indicator">
+          <ArrowDown size={18} />
+          <span>ЛИСТАЙ. ВДОХНОВЛЯЙСЯ.</span>
+        </a>
+        <span className="hero-caption">
+          БЕСКОНЕЧНАЯ ВСЕЛЕННАЯ ИДЕЙ<span>Одна платформа. Твоё воображение.</span>
+        </span>
+        <span className="edition">01 — ∞</span>
+      </div>
+    </section>
+  );
+}
