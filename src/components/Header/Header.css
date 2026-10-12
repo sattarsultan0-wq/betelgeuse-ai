@@ -71,13 +71,30 @@ header.header.header-scrolled {
   opacity: 1;
 }
 .header-glass[data-refraction='media'] .header-glass-rim {
-  border-color: #ffffff40;
+  border-width: 0.5px;
+  border-color: #ffffff24;
   box-shadow:
-    inset 0 2px 2px #ffffff75,
-    inset 2px 0 4px #ffffff26,
-    inset -2px 0 5px #ffffff38,
-    inset 0 -2px 3px #ffffff33,
-    0 1px 1px #0006;
+    inset 0 0.5px 0.5px #ffffff59,
+    inset 0 -0.5px 0.5px #ffffff1f,
+    0 1px 1px #0003;
+}
+.header-glass[data-refraction='media'] .header-glass-backdrop {
+  -webkit-backdrop-filter: blur(2px) brightness(1.12);
+  backdrop-filter: blur(2px) brightness(1.12);
+}
+.header-glass[data-refraction='media'] {
+  --glass-density: 0.12;
+}
+header.header-scrolled .header-glass[data-refraction='media'] {
+  --glass-density: 0.23;
+}
+.header-glass[data-refraction='media'] .header-glass-rim::before {
+  left: 9%;
+  right: 9%;
+  opacity: 0.5;
+}
+.header-glass[data-refraction='media'] .header-glass-rim::after {
+  opacity: 0.2;
 }
 .header-glass-tint {
   background:
@@ -360,6 +377,9 @@ header.header .header-error {
 }
 @media (prefers-contrast: more) {
   header.header {
+    --glass-density: 0.88;
+  }
+  header.header .header-glass[data-refraction='media'] {
     --glass-density: 0.88;
   }
   .header-glass-reflection {

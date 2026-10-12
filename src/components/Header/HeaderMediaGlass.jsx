@@ -1,26 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { createGlassScene } from './glassScene';
 import { createMediaGlassRenderer } from './mediaGlassRenderer';
 
 export default function HeaderMediaGlass() {
   const ref = useRef(null);
-  const [contextVersion, setContextVersion] = useState(0);
   const { pathname } = useLocation();
   useEffect(() => {
     const canvas = ref.current,
-      hero = document.getElementById('home');
-    if (!hero) return;
-    const renderer = createMediaGlassRenderer(canvas);
-    if (!renderer) return;
+      renderer = createMediaGlassRenderer(canvas),
+      painter = createGlassScene();
+    if (!renderer || !painter) return;
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let timer,
-      visible = false,
-      failed = false,
+      disposed = false,
+      painting = false,
+      pendingPaint = false,
       lastPaint = 0;
-    function draw() {
+    async function draw() {
       clearTimeout(timer);
-      if (failed || !visible || document.hidden) {
-        canvas.dataset.active = 'false';
+      if (disposed || document.hidden) return;
+      if (painting) {
+        pendingPaint = true;
         return;
       }
       const now = performance.now();
@@ -29,65 +30,75 @@ export default function HeaderMediaGlass() {
         return;
       }
       lastPaint = now;
-      const bounds = canvas.getBoundingClientRect(),
-        heroBounds = hero.getBoundingClientRect();
-      // Do not paint Hero pixels over other sections or over foreground Hero text.
-      const textBounds = hero.querySelector('.hero-content')?.getBoundingClientRect();
-      if (heroBounds.bottom < bounds.bottom || (textBounds && textBounds.top < bounds.bottom)) {
+      const bounds = canvas.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      painting = true;
+      try {
+        const scene = painter.paint(bounds);
+        const strength =
+          canvas.dataset.strength === undefined ? 1 : Number(canvas.dataset.strength);
+        const drawn = await renderer.draw(scene, bounds, strength);
+        if (disposed) return;
+        canvas.dataset.active = drawn ? 'true' : 'false';
+        delete canvas.dataset.error;
+        canvas.dataset.elements = String(scene.elements);
+        if (scene.moving && !motion.matches) timer = setTimeout(draw, 50);
+      } catch (error) {
+        if (disposed) return;
         canvas.dataset.active = 'false';
-        timer = setTimeout(draw, 120);
+        canvas.dataset.error = error.name;
+      } finally {
+        painting = false;
+        if (pendingPaint && !disposed) {
+          pendingPaint = false;
+          requestPaint();
+        }
+      }
+    }
+    function requestPaint() {
+      if (disposed) return;
+      if (painting) {
+        pendingPaint = true;
         return;
       }
-      const video = hero.querySelector('.hero-video.ready');
-      const source =
-        !motion.matches && video?.readyState >= 2 ? video : hero.querySelector('.hero-poster');
-      try {
-        canvas.dataset.active =
-          source && renderer.draw(source, bounds, hero.querySelector('.hero-overlay'))
-            ? 'true'
-            : 'false';
-      } catch {
-        // Cross-origin media without CORS, WebGL failures, etc. preserve CSS glass.
-        canvas.dataset.active = 'false';
-        failed = true;
-      }
-      if (!motion.matches && !failed) timer = setTimeout(draw, video && !video.paused ? 50 : 150);
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      draw();
-    });
-    observer.observe(hero);
-    document.addEventListener('visibilitychange', draw);
-    window.addEventListener('scroll', draw, { passive: true });
-    window.addEventListener('resize', draw, { passive: true });
-    motion.addEventListener('change', draw);
-    const loaded = () => draw();
-    hero.addEventListener('load', loaded, true);
-    hero.addEventListener('playing', loaded, true);
-    const lost = (event) => {
-      event.preventDefault();
-      failed = true;
       clearTimeout(timer);
-      canvas.dataset.active = 'false';
-    };
-    canvas.addEventListener('webglcontextlost', lost);
-    const restored = () => setContextVersion((version) => version + 1);
-    canvas.addEventListener('webglcontextrestored', restored);
+      timer = setTimeout(draw, Math.max(0, 50 - (performance.now() - lastPaint)));
+    }
+    const observer = new MutationObserver(requestPaint);
+    for (const root of document.querySelectorAll('#main, #root > footer')) {
+      observer.observe(root, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true,
+      });
+    }
+    const resized = new ResizeObserver(requestPaint);
+    resized.observe(canvas);
+    window.addEventListener('scroll', requestPaint, { passive: true });
+    window.addEventListener('resize', requestPaint, { passive: true });
+    document.addEventListener('visibilitychange', requestPaint);
+    document.addEventListener('load', requestPaint, true);
+    document.addEventListener('playing', requestPaint, true);
+    document.addEventListener('input', requestPaint, true);
+    motion.addEventListener('change', requestPaint);
+    document.fonts?.ready.then(requestPaint);
+    requestPaint();
     return () => {
+      disposed = true;
       clearTimeout(timer);
       observer.disconnect();
-      document.removeEventListener('visibilitychange', draw);
-      window.removeEventListener('scroll', draw);
-      window.removeEventListener('resize', draw);
-      motion.removeEventListener('change', draw);
-      hero.removeEventListener('load', loaded, true);
-      hero.removeEventListener('playing', loaded, true);
-      canvas.removeEventListener('webglcontextlost', lost);
-      canvas.removeEventListener('webglcontextrestored', restored);
-      canvas.dataset.active = 'false';
+      resized.disconnect();
+      window.removeEventListener('scroll', requestPaint);
+      window.removeEventListener('resize', requestPaint);
+      document.removeEventListener('visibilitychange', requestPaint);
+      document.removeEventListener('load', requestPaint, true);
+      document.removeEventListener('playing', requestPaint, true);
+      document.removeEventListener('input', requestPaint, true);
+      motion.removeEventListener('change', requestPaint);
       renderer.dispose();
+      canvas.dataset.active = 'false';
     };
-  }, [pathname, contextVersion]);
+  }, [pathname]);
   return <canvas ref={ref} className="header-glass-media" data-active="false" />;
 }
