@@ -454,7 +454,7 @@ h2 {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 95s linear infinite;
+  animation: marquee 47.5s linear infinite;
   will-change: transform;
 }
 .row-0 .marquee-track,
@@ -462,9 +462,8 @@ h2 {
   animation-direction: reverse;
 }
 .row-1 .marquee-track {
-  animation-duration: 110s;
+  animation-duration: 55s;
 }
-.marquee:hover .marquee-track,
 .marquee:focus-within .marquee-track {
   animation-play-state: paused;
 }
@@ -1870,10 +1869,10 @@ h2 {
     gap: 20px;
   }
   .marquee-track {
-    animation-duration: 130s;
+    animation-duration: 65s;
   }
   .row-1 .marquee-track {
-    animation-duration: 145s;
+    animation-duration: 72.5s;
   }
   .row-2 {
     display: none;
@@ -1989,8 +1988,8 @@ h2 {
     font-size: 11px;
   }
   .showcase-card {
-    width: 200px;
-    height: 350px;
+    width: 150px;
+    height: 300px;
     border-radius: 10px;
   }
   .showcase-rows {
