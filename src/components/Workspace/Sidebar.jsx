@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import {
   Boxes,
+  Flame,
   ChevronDown,
   Folder,
   Library,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../UI/Modal';
+import { Star } from '../UI/Brand';
 
 export default function Sidebar({
   compact,
@@ -43,7 +45,7 @@ export default function Sidebar({
       >
         <div className="wf-sidebar-brand-row">
           <Link className="wf-sidebar-brand" to="/" aria-label="Betelgeuse — на главную">
-            <span>✦</span>
+            <Star />
             <strong>BETELGEUSE</strong>
           </Link>
           <button
@@ -59,6 +61,10 @@ export default function Sidebar({
           <NavLink to="/workflow" onClick={onClose} title="Workflow">
             <Boxes size={19} />
             <span>Workflow</span>
+          </NavLink>
+          <NavLink to="/trends" onClick={onClose} title="Тренды">
+            <Flame size={19} />
+            <span>Тренды</span>
           </NavLink>
           <button disabled title="Проекты появятся позже">
             <Folder size={19} />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Film, LoaderCircle } from 'lucide-react';
-import { api, API_BASE } from '../services/api';
+import { api, apiUrl } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { generationLabels } from '../components/Workspace/InteractiveCanvas';
 import MediaPreview from '../components/Workspace/MediaPreview';
@@ -37,7 +37,7 @@ export default function Library() {
             : data.images.map((image) => ({
                 ...image,
                 kind: 'image',
-                url: `${API_BASE}/uploads/${image.id}`,
+                url: apiUrl(`/uploads/${image.id}`),
               }));
         setItems(rows);
         setTotal(data.total);

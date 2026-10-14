@@ -58,6 +58,12 @@
 .home-create-preview-bottom > span:last-child {
   margin-left: auto;
 }
+.home-create-preview-top .star {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
 .home-create-video {
   position: relative;
   aspect-ratio: 16 / 11;

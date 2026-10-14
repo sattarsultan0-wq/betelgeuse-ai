@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { registerPlayback, updatePlayback } from '../services/videoPlayback';
 
-export default function useInlineVideo(src, { group = 'preview', autoplay = true } = {}) {
+export default function useInlineVideo(
+  src,
+  { group = 'preview', autoplay = true, loadOnMount = false } = {},
+) {
   const ref = useRef(null),
     entryRef = useRef(null);
   const [state, setState] = useState({ ready: false, blocked: false, failed: false });
@@ -15,6 +18,7 @@ export default function useInlineVideo(src, { group = 'preview', autoplay = true
     video.setAttribute('muted', '');
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
+    if (loadOnMount && video.getAttribute('src') !== src) video.src = src;
     const entry = {
       video,
       group,
@@ -66,17 +70,40 @@ export default function useInlineVideo(src, { group = 'preview', autoplay = true
       video.removeEventListener('playing', playing);
       video.removeEventListener('error', error);
       unregister();
+      video.removeAttribute('src');
+      video.load();
       entryRef.current = null;
     };
-  }, [src, group, autoplay]);
+  }, [src, group, autoplay, loadOnMount]);
 
   function play() {
     const entry = entryRef.current;
     if (!entry) return;
+    if (entry.failed) {
+      // A failed HTMLMediaElement keeps its error until load() starts a fresh request.
+      entry.video.removeAttribute('src');
+      entry.video.src = src;
+      entry.video.load();
+    }
     entry.blocked = false;
+    entry.failed = false;
+    setState((current) => ({ ...current, blocked: false, failed: false }));
     entry.requested = true;
     entry.active = true;
     entry.play();
   }
-  return { ref, ...state, play };
+  function pause({ release = false } = {}) {
+    const entry = entryRef.current;
+    if (!entry) return;
+    entry.requested = false;
+    entry.active = false;
+    entry.video.pause();
+    if (release) {
+      entry.video.removeAttribute('src');
+      entry.video.load();
+      setState((current) => ({ ...current, ready: false }));
+    }
+    updatePlayback();
+  }
+  return { ref, ...state, play, pause };
 }

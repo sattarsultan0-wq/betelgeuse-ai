@@ -42,9 +42,12 @@
   font-size: 14px;
   letter-spacing: -0.04em;
 }
-.wf-sidebar-brand > span {
-  font-size: 31px;
-  text-shadow: 0 0 18px #ffffff50;
+.wf-sidebar-brand .star {
+  width: 31px;
+  height: 31px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 0 9px #ffffff30);
 }
 .wf-sidebar-caption {
   font-size: 8px;
@@ -1207,12 +1210,31 @@
   background: radial-gradient(ellipse, #ffffff04, transparent 70%), #050505;
 }
 .wf-access-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   position: absolute;
   top: 30px;
   left: 30px;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.03em;
+}
+.wf-access-brand .star {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+.wf-mobile-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.wf-mobile-brand .star {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 .wf-access > svg {
   color: #777;

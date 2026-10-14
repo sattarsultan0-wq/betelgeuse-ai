@@ -1,10 +1,15 @@
-export const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+import { joinApiPath, resolveApiBase } from './api-url.js';
+
+export function apiUrl(path) {
+  const base = resolveApiBase(import.meta.env.VITE_API_URL, { production: import.meta.env.PROD });
+  return joinApiPath(base, path);
+}
 let csrfToken, csrfRequest;
 async function csrf() {
   if (!csrfToken) {
     if (!csrfRequest)
       csrfRequest = (async () => {
-        const response = await fetch(`${API_BASE}/auth/csrf`, { credentials: 'include' });
+        const response = await fetch(apiUrl('/auth/csrf'), { credentials: 'include' });
         if (!response.ok) throw new Error('Не удалось установить защищённое соединение с API');
         csrfToken = (await response.json()).token;
       })().finally(() => {
@@ -15,6 +20,7 @@ async function csrf() {
   return csrfToken;
 }
 export async function api(path, options = {}) {
+  const url = apiUrl(path);
   const method = options.method || 'GET';
   const headers = { ...options.headers };
   if (!['GET', 'HEAD'].includes(method)) headers['X-CSRF-Token'] = await csrf();
@@ -22,9 +28,9 @@ export async function api(path, options = {}) {
     headers['Content-Type'] = 'application/json';
   let response;
   try {
-    response = await fetch(`${API_BASE}${path}`, {
-      credentials: 'include',
+    response = await fetch(url, {
       ...options,
+      credentials: 'include',
       method,
       headers,
       body:
@@ -50,7 +56,7 @@ export async function api(path, options = {}) {
   return data;
 }
 export async function downloadVideo(id) {
-  const response = await fetch(`${API_BASE}/generations/${id}/download`, {
+  const response = await fetch(apiUrl(`/generations/${id}/download`), {
     credentials: 'include',
   });
   if (!response.ok) {
@@ -66,7 +72,7 @@ export async function downloadVideo(id) {
 }
 
 export async function downloadImage(id) {
-  const response = await fetch(`${API_BASE}/uploads/${id}`, { credentials: 'include' });
+  const response = await fetch(apiUrl(`/uploads/${id}`), { credentials: 'include' });
   if (!response.ok) throw new Error('Не удалось скачать изображение');
   const blob = await response.blob();
   const extension =

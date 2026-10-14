@@ -94,9 +94,10 @@ export default function Modal({
   onClose,
   className = '',
   showTitle = true,
+  onExitComplete,
 }) {
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={onExitComplete}>
       {open && (
         <ModalContent key="dialog" {...{ title, children, onClose, className, showTitle }} />
       )}

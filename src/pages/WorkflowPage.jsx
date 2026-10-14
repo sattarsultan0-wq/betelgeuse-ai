@@ -28,7 +28,7 @@ function readBoard(userId) {
 }
 
 export default function WorkflowPage() {
-  const { billingLoading, setWorkflowReady } = useOutletContext();
+  const { billingLoading, setWorkflowReady, showWorkflowIntro } = useOutletContext();
   const { user, refresh } = useAuth();
   const { items, loading, error, submitting, pendingRequest, submit, retry } =
     useWorkflowGenerations(user.id, refresh);
@@ -39,8 +39,8 @@ export default function WorkflowPage() {
     [material, setMaterial] = useState(null);
   const [board, setBoard] = useState(() => readBoard(user.id));
   const [modelsLoading, setModelsLoading] = useState(true),
-    [minimumElapsed, setMinimumElapsed] = useState(false),
-    [loaderStage, setLoaderStage] = useState('loading');
+    [minimumElapsed, setMinimumElapsed] = useState(!showWorkflowIntro),
+    [loaderStage, setLoaderStage] = useState(showWorkflowIntro ? 'loading' : 'done');
   const previousIds = useRef(new Set());
   useEffect(() => {
     const controller = new AbortController();
@@ -58,9 +58,10 @@ export default function WorkflowPage() {
     return () => controller.abort();
   }, []);
   useEffect(() => {
+    if (!showWorkflowIntro) return;
     const timer = setTimeout(() => setMinimumElapsed(true), 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [showWorkflowIntro]);
   const initialReady = !loading && !modelsLoading && !billingLoading;
   useEffect(() => {
     if (loaderStage === 'loading' && minimumElapsed && initialReady) setLoaderStage('exiting');

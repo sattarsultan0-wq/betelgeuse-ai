@@ -3,6 +3,7 @@ import { useReducedMotion } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';
 import { workflowMedia } from '../../assets/media';
 import useInlineVideo from '../../hooks/useInlineVideo';
+import { Star } from '../UI/Brand';
 import './CreateCTA.css';
 
 export default function CreateCTA() {
@@ -39,7 +40,7 @@ export default function CreateCTA() {
       </div>
       <div className="home-create-preview">
         <div className="home-create-preview-top">
-          <span className="live-dot" /> BETELGEUSE / CREATIVE WORKSPACE <span>01 — ∞</span>
+          <Star /> BETELGEUSE / CREATIVE WORKSPACE <span>01 — ∞</span>
         </div>
         <div className="home-create-video">
           {workflowMedia.video && !video.failed ? (

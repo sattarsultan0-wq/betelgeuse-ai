@@ -3,6 +3,7 @@ import { ArrowUpRight, LoaderCircle, LockKeyhole } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/workflow.css';
 import WorkflowLoader from './WorkflowLoader';
+import { Star } from '../UI/Brand';
 
 export default function ProtectedWorkspace() {
   const { user, loading, requestAuth } = useAuth();
@@ -20,7 +21,7 @@ export default function ProtectedWorkspace() {
   return (
     <section className="wf-access">
       <Link to="/" className="wf-access-brand">
-        ✦ BETELGEUSE
+        <Star /> BETELGEUSE
       </Link>
       <LockKeyhole size={32} />
       <h1>

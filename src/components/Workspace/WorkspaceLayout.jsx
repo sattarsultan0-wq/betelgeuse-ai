@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { LoaderCircle, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import Sidebar from './Sidebar';
+import { Star } from '../UI/Brand';
 import '../../styles/workflow.css';
 
 export default function WorkspaceLayout() {
@@ -19,10 +20,19 @@ export default function WorkspaceLayout() {
   const [mobileOpen, setMobileOpen] = useState(false),
     [billing, setBilling] = useState(null),
     [billingError, setBillingError] = useState('');
+  const [showWorkflowIntro, setShowWorkflowIntro] = useState(
+    () => pathname.replace(/\/$/, '') === '/workflow',
+  );
   const [billingLoading, setBillingLoading] = useState(true),
-    [workflowReady, setWorkflowReady] = useState(false);
+    [workflowReady, updateWorkflowReady] = useState(
+      () => pathname.replace(/\/$/, '') !== '/workflow',
+    );
+  const setWorkflowReady = useCallback((ready) => {
+    updateWorkflowReady(ready);
+    if (ready) setShowWorkflowIntro(false);
+  }, []);
   useLayoutEffect(() => {
-    setWorkflowReady(false);
+    if (pathname.replace(/\/$/, '') !== '/workflow') setWorkflowReady(true);
   }, [pathname]);
   useEffect(() => {
     const controller = new AbortController();
@@ -83,10 +93,21 @@ export default function WorkspaceLayout() {
           >
             <Menu size={19} />
           </button>
-          <span>✦ BETELGEUSE</span>
+          <span className="wf-mobile-brand"><Star /> BETELGEUSE</span>
           <small>{user.generationCredits ?? 0} кр.</small>
         </div>
-        <Outlet context={{ billing, billingError, billingLoading, setWorkflowReady }} />
+        <Suspense
+          fallback={
+            <div className="wf-page-loading">
+              <LoaderCircle className="spin" />
+              <p>Загрузка раздела…</p>
+            </div>
+          }
+        >
+          <Outlet
+            context={{ billing, billingError, billingLoading, setWorkflowReady, showWorkflowIntro }}
+          />
+        </Suspense>
       </div>
     </div>
   );

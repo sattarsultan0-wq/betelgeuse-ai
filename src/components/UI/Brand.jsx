@@ -1,6 +1,6 @@
 export function Star({ className = '' }) {
   return (
-    <img src="/images/logo.png" alt="" className="star" />
+    <img src="/images/logo.png" alt="" className={`star ${className}`.trim()} />
   );
 }
 export default function Brand() {

@@ -8,6 +8,7 @@ import WorkflowLoader from './components/Workspace/WorkflowLoader';
 const Library = lazy(() => import('./pages/Library'));
 const WorkflowPage = lazy(() => import('./pages/WorkflowPage'));
 const Billing = lazy(() => import('./pages/Billing'));
+const TrendsPage = lazy(() => import('./pages/TrendsPage'));
 const WorkspaceLayout = lazy(() => import('./components/Workspace/WorkspaceLayout'));
 const ProtectedWorkspace = lazy(() => import('./components/Workspace/ProtectedWorkspace'));
 const Admin = lazy(() => import('./pages/Admin'));
@@ -33,7 +34,7 @@ function ScrollManager() {
 }
 export default function App() {
   const { pathname } = useLocation();
-  const workspace = ['/workflow', '/library', '/billing'].includes(pathname.replace(/\/$/, ''));
+  const workspace = ['/workflow', '/trends', '/library', '/billing'].includes(pathname.replace(/\/$/, ''));
   return (
     <>
       <a className="skip-link" href="#main">
@@ -56,6 +57,7 @@ export default function App() {
             <Route element={<ProtectedWorkspace />}>
               <Route element={<WorkspaceLayout />}>
                 <Route path="/workflow" element={<WorkflowPage />} />
+                <Route path="/trends" element={<TrendsPage />} />
                 <Route path="/library" element={<Library />} />
                 <Route path="/billing" element={<Billing />} />
               </Route>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 const AuthContext = createContext(null);
 const returnKey = 'betelgeuse:auth-return';
-const privatePaths = ['/workflow', '/library', '/billing'];
+const privatePaths = ['/workflow', '/trends', '/library', '/billing'];
 function storedReturn() {
   try {
     const value = sessionStorage.getItem(returnKey);
