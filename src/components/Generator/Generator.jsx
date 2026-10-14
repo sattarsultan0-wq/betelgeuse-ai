@@ -38,12 +38,12 @@ export default function Generator() {
   const { generation, phase, error, submit, setError, busy } = useGeneration(user?.id);
   const [models, setModels] = useState([]),
     [modelError, setModelError] = useState(''),
-    [modelId, setModelId] = useState('higgsfield'),
+    [modelId, setModelId] = useState('kling'),
     [mode, setMode] = useState('TEXT_TO_VIDEO'),
     [prompt, setPrompt] = useState(''),
     [aspectRatio, setAspectRatio] = useState('16:9'),
     [duration, setDuration] = useState(5),
-    [quality, setQuality] = useState('720p'),
+    [quality, setQuality] = useState('standard'),
     [file, setFile] = useState(null),
     [preview, setPreview] = useState(''),
     [dragging, setDragging] = useState(false),
@@ -155,7 +155,7 @@ export default function Generator() {
     );
     refresh().catch(() => {});
   }
-  const cost = duration === 10 ? 2 : 1;
+  const cost = model?.creditCosts?.[duration] ?? null;
   return (
     <section className="generator section container" id="generator">
       <div className="section-heading">
@@ -336,8 +336,10 @@ export default function Generator() {
                 value={quality}
                 onChange={(e) => setQuality(e.target.value)}
               >
-                {(capabilities?.qualities || ['720p']).map((value) => (
-                  <option key={value}>{value}</option>
+                {(capabilities?.qualities || ['standard']).map((value) => (
+                  <option key={value} value={value}>
+                    {value === 'standard' ? 'Стандартное' : value}
+                  </option>
                 ))}
               </select>
               <ChevronDown size={12} />
@@ -388,11 +390,13 @@ export default function Generator() {
           <div className="generation-meta">
             <span>
               {user
-                ? `Доступно: ${user.generationCredits ?? 0} ед.`
+                ? user.isAdmin
+                  ? 'Администратор · без списания кредитов'
+                  : `Доступно: ${user.generationCredits ?? 0} ед.`
                 : 'Войди, чтобы начать создавать'}
             </span>
             <span>
-              {cost} ед. квоты / {duration} сек
+              {user?.isAdmin ? 0 : cost ?? '—'} ед. квоты / {duration} сек
             </span>
           </div>
         </div>

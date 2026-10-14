@@ -1,11 +1,12 @@
+// src accepts a direct video URL (https://...) or a path from public/.
 export const showcases = [
   {
     id: 'orbit',
+    trendId: 'litvin',
     title: 'Популярный тренд с Литвином, Равшаном и Адель.',
     model: 'Авторский концепт',
     sourceVideo: '/videos/litvin.mp4',
-    video: '/videos/optimized/litvin.mp4',
-    poster: '/images/video-posters/litvin.webp',
+    src: 'https://pub-66fef0903f9846c3b025fdfbd4672b02.r2.dev/litvin.mp4',
     prompt: 'Популярный тренд с Литвинов, Равшаном и Адель.',
   },
   {
@@ -13,7 +14,7 @@ export const showcases = [
     title: 'Жидкая геометрия',
     model: 'Авторский концепт',
     sourceVideo: '/videos/example4.mp4',
-    video: '/videos/optimized/example4.mp4',
+    src: 'https://pub-66fef0903f9846c3b025fdfbd4672b02.r2.dev/example4.mp4',
     poster: '/images/video-posters/example4.webp',
     prompt:
       'Скульптура из жидкого хрома плавно вращается в тёмной студии. Макросъёмка, мягкие отражения, контрастный свет.',
@@ -23,7 +24,7 @@ export const showcases = [
     title: 'Неземная тишина',
     model: 'Авторский концепт',
     sourceVideo: '/videos/example1.mp4',
-    video: '/videos/optimized/example1.mp4',
+    src: '/videos/optimized/example1.mp4',
     poster: '/images/video-posters/example1.webp',
     prompt:
       'Камера медленно летит над серебристыми горами чужой планеты. Луна на горизонте, атмосферная дымка, кинематографический свет.',
@@ -33,7 +34,7 @@ export const showcases = [
     title: 'Другая реальность',
     model: 'Авторский концепт',
     sourceVideo: '/videos/example2.mp4',
-    video: '/videos/optimized/example2.mp4',
+    src: '/videos/optimized/example2.mp4',
     poster: '/images/video-posters/example2.webp',
     prompt:
       'Абстрактный портал из металлических колец открывается в пространстве. Плавное движение внутрь, мягкий белый свет.',
@@ -43,7 +44,7 @@ export const showcases = [
     title: 'Гравитация света',
     model: 'Авторский концепт',
     sourceVideo: '/videos/example3.mp4',
-    video: '/videos/optimized/example3.mp4',
+    src: '/videos/optimized/example3.mp4',
     poster: '/images/video-posters/example3.webp',
     prompt:
       'Волны жидкого металла поднимаются над бесконечным океаном. Тёмная планета висит в небе, медленный панорамный кадр.',
@@ -53,7 +54,7 @@ export const showcases = [
     title: 'Идеальная форма',
     model: 'Авторский концепт',
     sourceVideo: '/videos/example5.mp4',
-    video: '/videos/optimized/example5.mp4',
+    src: '/videos/optimized/example5.mp4',
     poster: '/images/video-posters/example5.webp',
     prompt:
       'Парящий хромированный кристалл медленно поворачивается вокруг оси в чёрном пространстве. Студийный свет, отражения, высокая детализация.',

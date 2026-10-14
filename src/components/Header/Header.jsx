@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Menu, X, ArrowUpRight, LogOut } from 'lucide-react';
+import { Menu, X, ArrowUpRight, LogOut, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Brand from '../UI/Brand';
 import { useAuth } from '../../context/AuthContext';
@@ -8,7 +8,7 @@ import './Header.css';
 const links = [
   ['Главная', 'home'],
   ['Возможности', 'showcase'],
-  ['Генератор', 'generator'],
+  ['Создавать', 'generator'],
   ['Тарифы', 'pricing'],
 ];
 export default function Header() {
@@ -79,6 +79,11 @@ export default function Header() {
         <div className="header-actions">
           {user ? (
             <>
+              {user.isAdmin && (
+                <Link className="icon-button" to="/admin" aria-label="Админка" title="Админка">
+                  <Shield size={18} />
+                </Link>
+              )}
               <Link className="account-link" to="/library">
                 {user.name.split(' ')[0]}
               </Link>

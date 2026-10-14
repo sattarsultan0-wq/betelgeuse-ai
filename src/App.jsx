@@ -4,7 +4,13 @@ import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import AuthDialog from './components/UI/AuthDialog';
 import Home from './pages/Home';
+import WorkflowLoader from './components/Workspace/WorkflowLoader';
 const Library = lazy(() => import('./pages/Library'));
+const WorkflowPage = lazy(() => import('./pages/WorkflowPage'));
+const Billing = lazy(() => import('./pages/Billing'));
+const WorkspaceLayout = lazy(() => import('./components/Workspace/WorkspaceLayout'));
+const ProtectedWorkspace = lazy(() => import('./components/Workspace/ProtectedWorkspace'));
+const Admin = lazy(() => import('./pages/Admin'));
 const Information = lazy(() => import('./pages/Information'));
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -12,13 +18,11 @@ function ScrollManager() {
     if (hash) {
       const timer = setTimeout(
         () =>
-          document
-            .getElementById(hash.slice(1))
-            ?.scrollIntoView({
-              behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-                ? 'instant'
-                : 'smooth',
-            }),
+          document.getElementById(hash.slice(1))?.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+              ? 'instant'
+              : 'smooth',
+          }),
         80,
       );
       return () => clearTimeout(timer);
@@ -28,18 +32,35 @@ function ScrollManager() {
   return null;
 }
 export default function App() {
+  const { pathname } = useLocation();
+  const workspace = ['/workflow', '/library', '/billing'].includes(pathname.replace(/\/$/, ''));
   return (
     <>
       <a className="skip-link" href="#main">
         К содержимому
       </a>
       <ScrollManager />
-      <Header />
+      {!workspace && <Header />}
       <main id="main">
-        <Suspense fallback={<div className="subpage container">Загрузка…</div>}>
+        <Suspense
+          fallback={
+            pathname.replace(/\/$/, '') === '/workflow' ? (
+              <WorkflowLoader />
+            ) : (
+              <div className="subpage container">Загрузка…</div>
+            )
+          }
+        >
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/library" element={<Library />} />
+            <Route element={<ProtectedWorkspace />}>
+              <Route element={<WorkspaceLayout />}>
+                <Route path="/workflow" element={<WorkflowPage />} />
+                <Route path="/library" element={<Library />} />
+                <Route path="/billing" element={<Billing />} />
+              </Route>
+            </Route>
+            <Route path="/admin" element={<Admin />} />
             {['privacy', 'terms', 'contact'].map((kind) => (
               <Route path={`/${kind}`} key={kind} element={<Information kind={kind} />} />
             ))}
@@ -57,7 +78,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </main>
-      <Footer />
+      {!workspace && <Footer />}
       <AuthDialog />
     </>
   );

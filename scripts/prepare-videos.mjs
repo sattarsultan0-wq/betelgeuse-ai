@@ -31,9 +31,10 @@ function ffmpeg(args) {
 }
 
 try {
-  for (const item of [heroMedia, ...showcases.filter((item) => item.sourceVideo)]) {
+  for (const item of [heroMedia, ...showcases.filter((item) => item.sourceVideo && item.src?.startsWith('/') && !item.src.startsWith('//'))]) {
+    const videoUrl = item === heroMedia ? item.video : item.src;
     const input = localFile(item.sourceVideo),
-      output = localFile(item.video),
+      output = localFile(videoUrl),
       poster = localFile(item.poster);
     if (input === output || output === poster)
       throw new Error('Original, video and poster paths must differ.');
@@ -42,7 +43,7 @@ try {
     await mkdir(path.dirname(output), { recursive: true });
     await mkdir(path.dirname(poster), { recursive: true });
     if (!current || current.mtimeMs < original.mtimeMs || process.argv.includes('--force')) {
-      console.log(`H.264: ${item.sourceVideo} → ${item.video}`);
+      console.log(`H.264: ${item.sourceVideo} → ${videoUrl}`);
       const size = item === heroMedia ? '1280:720' : '720:1280';
       await ffmpeg([
         '-y',

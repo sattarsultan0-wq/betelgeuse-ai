@@ -1,0 +1,117 @@
+.home-models {
+  padding: 65px 0 54px;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+.home-models-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 36px;
+}
+.home-models-heading .eyebrow {
+  font-size: 9px;
+  margin-bottom: 16px;
+}
+.home-models-heading h2 {
+  font-size: clamp(23px, 2.5vw, 36px);
+  letter-spacing: -0.045em;
+}
+.home-models-heading p {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.home-models-pause {
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+}
+.home-models-marquee {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.home-models-track {
+  display: flex;
+  width: max-content;
+  animation: home-models-scroll 36s linear infinite;
+  will-change: transform;
+}
+.home-models-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+.home-models-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 36px;
+  font-size: clamp(21px, 2.4vw, 31px);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+  color: #d5d5d5;
+}
+.home-models-mark {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border: 1px solid #ffffff30;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+.home-models-item-seedance .home-models-mark {
+  border-radius: 50%;
+}
+.home-models-item-genjutsu .home-models-mark {
+  border-radius: 3px 16px;
+}
+.home-models-star {
+  margin-left: 42px;
+  font-size: 13px;
+  color: #494949;
+}
+.home-models-marquee:hover .home-models-track,
+.home-models-marquee.is-paused .home-models-track {
+  animation-play-state: paused;
+}
+@keyframes home-models-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (max-width: 540px) {
+  .home-models {
+    padding: 40px 0 32px;
+  }
+  .home-models-heading p {
+    font-size: 11px;
+  }
+  .home-models-item {
+    padding: 12px 22px;
+    gap: 12px;
+  }
+  .home-models-star {
+    margin-left: 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-models-track {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+  .home-models-group[aria-hidden='true'] {
+    display: none;
+  }
+  .home-models-marquee {
+    overflow-x: auto;
+  }
+  .home-models-pause {
+    display: none;
+  }
+}

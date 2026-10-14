@@ -5,6 +5,7 @@ import { MotionConfig } from 'motion/react';
 import { AuthProvider } from './context/AuthContext';
 import App from './App';
 import './styles/global.css';
+import './styles/interface.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>

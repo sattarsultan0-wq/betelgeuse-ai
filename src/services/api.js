@@ -40,6 +40,8 @@ export async function api(path, options = {}) {
   }
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 401 && !path.startsWith('/auth/'))
+      window.dispatchEvent(new Event('betelgeuse:session-expired'));
     if (response.status === 403 && data.code === 'CSRF') csrfToken = undefined;
     const error = new Error(data.message || 'Не удалось выполнить запрос');
     error.status = response.status;
@@ -59,6 +61,20 @@ export async function downloadVideo(id) {
   const link = document.createElement('a');
   link.href = url;
   link.download = `betelgeuse-${id}.mp4`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function downloadImage(id) {
+  const response = await fetch(`${API_BASE}/uploads/${id}`, { credentials: 'include' });
+  if (!response.ok) throw new Error('Не удалось скачать изображение');
+  const blob = await response.blob();
+  const extension =
+    { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[blob.type] || 'image';
+  const url = URL.createObjectURL(blob),
+    link = document.createElement('a');
+  link.href = url;
+  link.download = `betelgeuse-${id}.${extension}`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

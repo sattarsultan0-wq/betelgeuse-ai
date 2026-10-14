@@ -1,22 +1,15 @@
 import Hero from '../components/Hero/Hero';
 import VideoShowcase from '../components/VideoShowcase/VideoShowcase';
-import Generator from '../components/Generator/Generator';
+import AIModels from '../components/AIModels/AIModels';
+import CreateCTA from '../components/CreateCTA/CreateCTA';
 import Pricing from '../components/Pricing/Pricing';
 export default function Home() {
   return (
     <>
       <Hero />
+      <AIModels />
       <VideoShowcase />
-      <Generator />
-      <div className="manifesto container">
-        <span>✦</span>
-        <p>
-          НЕ ПРОСТО ВИДЕО.
-          <br />
-          ТВОЙ ВЗГЛЯД НА <span className="dim">ВСЕЛЕННУЮ.</span>
-        </p>
-        <small>СОЗДАВАЙ БЕЗ ГРАНИЦ</small>
-      </div>
+      <CreateCTA />
       <Pricing />
     </>
   );

@@ -1,19 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowUpRight, Play } from 'lucide-react';
 import { showcases } from '../../assets/showcase';
-import Modal from '../UI/Modal';
+import TrendDialog from './TrendDialog';
+import { api } from '../../services/api';
 import useInlineVideo from '../../hooks/useInlineVideo';
-function Card({ item, onSelect, duplicate }) {
-  const video = useInlineVideo(item.video);
+function Card({ item, onSelect, duplicate, index }) {
+  const video = useInlineVideo(item.src);
   return (
     <button
       className="showcase-card"
       tabIndex={duplicate ? -1 : 0}
       onClick={() => onSelect(item)}
-      aria-label={`Открыть ${item.video ? 'видео' : 'концепт'}: ${item.title}`}
+      aria-label={`Открыть ${item.src ? 'видео' : 'концепт'}: ${item.title}`}
     >
-      <img src={item.poster} alt="" loading="lazy" width="720" height="450" />
-      {item.video && (
+      {item.poster && <img src={item.poster} alt="" loading="lazy" width="720" height="450" />}
+      {item.src && (
         <video
           ref={video.ref}
           className={video.ready && !video.failed ? 'ready' : ''}
@@ -27,7 +28,7 @@ function Card({ item, onSelect, duplicate }) {
           poster={item.poster}
         />
       )}
-      <span className="card-badge">CONCEPT / 0{showcases.indexOf(item) + 1}</span>
+      <span className="card-badge">TREND / {String(index + 1).padStart(2, '0')}</span>
       <span className="card-play">
         <Play size={15} />
       </span>
@@ -42,36 +43,30 @@ function Card({ item, onSelect, duplicate }) {
   );
 }
 
-function VideoPreview({ item }) {
-  const video = useInlineVideo(item.video, { group: 'dialog' });
-  return (
-    <>
-      <video
-        ref={video.ref}
-        className="concept-preview concept-video"
-        src={item.video}
-        poster={item.poster}
-        controls
-        muted
-        playsInline
-        loop
-        preload="metadata"
-      />
-      {video.blocked && (
-        <button className="glass-button" onClick={video.play}>
-          <Play size={16} /> Смотреть видео
-        </button>
-      )}
-      {video.failed && (
-        <p className="error" role="alert">
-          Видео не удалось загрузить. Проверь подключение и доступность файла.
-        </p>
-      )}
-    </>
-  );
-}
 export default function VideoShowcase() {
   const [selected, setSelected] = useState(null);
+  const [items, setItems] = useState(showcases);
+  useEffect(() => {
+    const controller = new AbortController();
+    api('/trends', { signal: controller.signal })
+      .then(({ trends }) => {
+        setItems(
+          trends.map((trend) => {
+            const local = showcases.find((item) => (item.trendId || item.id) === trend.id);
+            return {
+              ...local,
+              ...trend,
+              id: local?.id || trend.id,
+              trendId: trend.id,
+              title: local?.title || trend.title,
+              src: local?.src || trend.videoUrl,
+            };
+          }),
+        );
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
   return (
     <section className="showcase section" id="showcase">
       <div className="section-heading container">
@@ -91,7 +86,7 @@ export default function VideoShowcase() {
       </div>
       <div className="showcase-rows">
         {[0, 1, 2].map((row) => {
-          const items = showcases.slice(row * 2).concat(showcases.slice(0, row * 2));
+          const rowItems = items.slice(row * 2).concat(items.slice(0, row * 2));
           return (
             <div className={`marquee row-${row}`} key={row}>
               <div className="marquee-track">
@@ -101,12 +96,13 @@ export default function VideoShowcase() {
                     key={copy}
                     aria-hidden={copy === 1 ? true : undefined}
                   >
-                    {items.map((item) => (
+                    {rowItems.map((item) => (
                       <Card
                         key={item.id}
                         item={item}
                         onSelect={setSelected}
                         duplicate={copy === 1}
+                        index={items.indexOf(item)}
                       />
                     ))}
                   </div>
@@ -117,28 +113,15 @@ export default function VideoShowcase() {
         })}
       </div>
       <p className="showcase-note container">
-        Нажми на карточку, чтобы посмотреть видео и использовать идею.
+        Нажми на тренд, добавь фотографии и создай свою версию.
       </p>
-      <Modal open={!!selected} title={selected?.title || ''} onClose={() => setSelected(null)}>
-        {selected &&
-          (selected.video ? (
-            <VideoPreview key={selected.id} item={selected} />
-          ) : (
-            <img className="concept-preview" src={selected.poster} alt={selected.title} />
-          ))}
-        <p className="muted">{selected?.prompt}</p>
-        <button
-          className="glass-button primary"
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent('betelgeuse:prompt', { detail: selected.prompt }));
-            setSelected(null);
-            document.getElementById('generator')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Использовать идею
-          <ArrowUpRight size={18} />
-        </button>
-      </Modal>
+      {selected && (
+        <TrendDialog
+          key={selected.trendId || selected.id}
+          item={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </section>
   );
 }

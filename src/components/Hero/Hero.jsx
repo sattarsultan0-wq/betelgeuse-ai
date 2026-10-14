@@ -3,7 +3,9 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
 import { ArrowUpRight, ArrowDown, Play } from 'lucide-react';
 import { heroMedia } from '../../assets/media';
 import useInlineVideo from '../../hooks/useInlineVideo';
+import { useAuth } from '../../context/AuthContext';
 export default function Hero() {
+  const { requestAuth, loading } = useAuth();
   const ref = useRef(null);
   const reduced = useReducedMotion();
   const video = useInlineVideo(heroMedia.video, { group: 'hero', autoplay: !reduced });
@@ -59,10 +61,10 @@ export default function Hero() {
           <br className="desktop-break" /> видео с помощью искусственного интеллекта.
         </p>
         <div className="hero-buttons">
-          <a className="glass-button primary" href="#generator">
+          <button className="glass-button primary" disabled={loading} onClick={() => requestAuth('login', '/workflow')}>
             Начать создавать
             <ArrowUpRight size={19} />
-          </a>
+          </button>
           <a className="glass-button" href="#showcase">
             <Play size={15} />
             Смотреть примеры
