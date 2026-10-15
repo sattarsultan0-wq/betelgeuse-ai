@@ -5,7 +5,6 @@ export default function Pricing() {
     <section className="pricing section container" id="pricing">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">03 / БОЛЬШЕ ПРОСТРАНСТВА ДЛЯ ИДЕЙ</span>
           <h2>
             ВЫБЕРИ СВОЙ УРОВЕНЬ
             <br />

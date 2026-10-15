@@ -17,7 +17,6 @@ export default function CreateCTA() {
       aria-labelledby="home-create-title"
     >
       <div className="home-create-copy">
-        <span className="eyebrow">02 / ОТ ИДЕИ ДО ПЕРВОГО КАДРА</span>
         <h2 id="home-create-title">
           Воплощай идеи
           <br />
@@ -34,9 +33,6 @@ export default function CreateCTA() {
         >
           Начать создавать <ArrowUpRight size={20} />
         </button>
-        <div className="home-create-caption">
-          <Sparkles size={14} /> Твоё воображение. Новая орбита возможностей.
-        </div>
       </div>
       <div className="home-create-preview">
         <div className="home-create-preview-top">

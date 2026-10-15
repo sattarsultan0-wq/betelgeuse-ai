@@ -1,10 +1,10 @@
 // Presentation catalog. API IDs and availability always come from /api/models.
 export const aiModels = [
-  { id: 'kling', name: 'Kling AI', type: 'Video', apiId: 'kling', mark: 'K' },
-  { id: 'seedance', name: 'Seedance', type: 'Video', apiId: 'higgsfield', mark: 'S' },
-  { id: 'higgsfield', name: 'Higgsfield', type: 'Video', mark: 'H', provider: true },
-  { id: 'genjutsu', name: 'Genjutsu', type: 'Video', mark: 'G' },
-  { id: 'nano-banana', name: 'Nano Banana', type: 'Image', mark: 'N' },
+  { id: 'kling', name: 'Kling AI', type: 'Video', apiId: 'kling', mark: '/public/images/kling-logo.png' },
+  { id: 'seedance', name: 'Seedance', type: 'Video', apiId: 'higgsfield', mark: '/public/images/seedance-logo.png' },
+  { id: 'higgsfield', name: 'Higgsfield', type: 'Video', mark: "/public/images/higgs-logo.png", provider: true },
+  { id: 'nano-banana', name: 'Nano Banana', type: 'Image', mark: '/public/images/nanobanana-logo.png' },
+  { id: 'gemini', name: 'Gemini', type: 'Image', mark: '/public/images/gemini-logo.png' }
 ];
 
 export function workspaceModels(apiModels) {

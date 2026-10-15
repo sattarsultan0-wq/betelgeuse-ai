@@ -1,6 +1,5 @@
 .home-models {
   padding: 65px 0 54px;
-  border-bottom: 1px solid var(--line);
   overflow: hidden;
 }
 .home-models-heading {
@@ -8,7 +7,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 36px;
+  margin-bottom: 100px;
 }
 .home-models-heading .eyebrow {
   font-size: 9px;
@@ -71,6 +70,11 @@
   font-size: 13px;
   color: #494949;
 }
+
+.model-logo{
+  width: 35px;
+}
+
 @keyframes home-models-scroll {
   to {
     transform: translateX(-50%);
@@ -104,3 +108,5 @@
     overflow-x: auto;
   }
 }
+
+

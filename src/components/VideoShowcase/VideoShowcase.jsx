@@ -11,17 +11,14 @@ export default function VideoShowcase() {
     <section className="showcase section" id="showcase">
       <div className="section-heading container">
         <div>
-          <span className="eyebrow">01 / ВОЗМОЖНОСТИ БЕЗ ГРАНИЦ</span>
           <h2>
             ВДОХНОВЛЯЙСЯ.
             <br />
             СОЗДАВАЙ. <span className="dim">УДИВЛЯЙ.</span>
           </h2>
         </div>
-        <p>
-          От первого кадра до новой вселенной.
-          <br />
-          Всё начинается с твоей идеи.
+        <p className="showcase-note container">
+            Нажми на тренд, добавь фотографии и создай свою версию.
         </p>
       </div>
       {loading && !items.length && (
@@ -73,9 +70,6 @@ export default function VideoShowcase() {
           })}
         </div>
       )}
-      <p className="showcase-note container">
-        Нажми на тренд, добавь фотографии и создай свою версию.
-      </p>
       <VideoModal item={selected} onClose={() => setSelected(null)} />
     </section>
   );

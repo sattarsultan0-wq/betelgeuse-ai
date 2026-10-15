@@ -36,12 +36,7 @@ export default function Hero() {
         )}
       </motion.div>
       <div className="hero-overlay" />
-      <div className="hero-topline">
-        <span className="eyebrow">
-          <span className="live-dot" /> НОВАЯ ЭРА ТВОРЧЕСТВА
-        </span>
-        <span className="hero-coordinate">α ORIONIS · 05h 55m 10s</span>
-      </div>
+      
       <motion.div
         className="hero-content"
         initial={{ opacity: 0, y: 28 }}
@@ -81,9 +76,7 @@ export default function Hero() {
           <ArrowDown size={18} />
           <span>ЛИСТАЙ. ВДОХНОВЛЯЙСЯ.</span>
         </a>
-        <span className="hero-caption">
-          БЕСКОНЕЧНАЯ ВСЕЛЕННАЯ ИДЕЙ<span>Одна платформа. Твоё воображение.</span>
-        </span>
+        <span className="hero-caption"><span>Одна платформа. Твоё воображение.</span></span>
         <span className="edition">01 — ∞</span>
       </div>
     </section>

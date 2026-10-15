@@ -34,7 +34,6 @@ export default function Footer() {
         <div className="footer-links">
           <Link to="/privacy">Конфиденциальность</Link>
           <Link to="/terms">Условия использования</Link>
-          <span className="muted">СОЗДАНО ДЛЯ ВООБРАЖЕНИЯ</span>
         </div>
       </div>
       <div className="footer-wordmark" aria-hidden="true">

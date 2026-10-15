@@ -7,7 +7,7 @@ import HeaderGlass from './HeaderGlass';
 import './Header.css';
 const links = [
   ['Главная', 'home'],
-  ['Возможности', 'showcase'],
+  ['Тренды', 'showcase'],
   ['Создавать', 'generator'],
   ['Тарифы', 'pricing'],
 ];

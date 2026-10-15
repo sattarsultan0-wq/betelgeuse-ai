@@ -23,19 +23,15 @@
   color: #a5a5a5;
 }
 .section-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 30px;
   margin-bottom: 45px;
 }
 .section-heading .eyebrow {
   margin-bottom: 25px;
 }
 .section-heading > p {
-  font-size: 13px;
+  font-size: 11px;
   color: var(--muted);
-  margin: 0 0 4px;
+  margin: 10px 0 4px;
   max-width: 280px;
   line-height: 1.7;
 }
@@ -229,7 +225,7 @@
   flex-direction: column;
   padding: 150px 56px 30px;
   overflow: hidden;
-  border-bottom: 1px solid #ffffff0d;
+  border-bottom: 5px solid #ffffff0d;
 }
 .hero-background,
 .hero-poster,
