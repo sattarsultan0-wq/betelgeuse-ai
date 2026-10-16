@@ -1,4 +1,279 @@
 /* Betelgeuse workspace only. Every component selector uses the wf- prefix. */
+.wf-mode-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.wf-mode-panel[hidden] {
+  display: none;
+}
+.wf-mode-switch,
+.wf-type-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: #ffffff05;
+  border: 1px solid #ffffff15;
+  border-radius: 10px;
+}
+.wf-mode-switch button,
+.wf-type-switch button {
+  padding: 8px 15px;
+  border-radius: 7px;
+  color: #888;
+  font-size: 11px;
+  transition:
+    color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+.wf-mode-switch button[aria-pressed='true'],
+.wf-type-switch button[aria-pressed='true'] {
+  background: #f0f0f0;
+  color: #101010;
+  box-shadow: 0 0 14px #ffffff12;
+}
+.wf-mode-switch button:focus-visible,
+.wf-type-switch button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.wf-active-count {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #858585;
+  font-size: 10px;
+}
+.wf-standard {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(310px, 33%) minmax(0, 1fr);
+  min-height: 0;
+}
+.wf-generation-panel {
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 30px 26px 24px;
+  background: #0d0d0d;
+  border-right: 1px solid #ffffff12;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+.wf-standard-eyebrow {
+  font-size: 8px;
+  color: #777;
+  letter-spacing: 0.14em;
+}
+.wf-standard-intro h2 {
+  margin: 12px 0 7px;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+.wf-standard-intro p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #777;
+  margin: 0 0 24px;
+}
+.wf-type-switch {
+  margin-bottom: 24px;
+}
+.wf-type-switch button {
+  flex: 1;
+}
+.wf-standard-label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 10px;
+  color: #b7b7b7;
+  min-width: 0;
+}
+.wf-standard-label textarea,
+.wf-standard-label select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #ffffff16;
+  border-radius: 9px;
+  background: #151515;
+  color: #e7e7e7;
+  padding: 12px;
+  font: inherit;
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.wf-standard-label textarea {
+  resize: vertical;
+  min-height: 158px;
+  max-height: 320px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.wf-standard-label textarea::placeholder {
+  color: #626262;
+}
+.wf-standard-label textarea:focus,
+.wf-standard-label select:focus {
+  border-color: #ffffff65;
+}
+.wf-standard-label select {
+  min-height: 40px;
+  text-overflow: ellipsis;
+}
+.wf-standard-label option {
+  background: #151515;
+  color: #eee;
+}
+.wf-standard-fields {
+  display: grid;
+  gap: 18px;
+}
+.wf-standard-options {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 12px;
+}
+.wf-standard-reference {
+  margin-top: 20px;
+}
+.wf-reference-hint {
+  color: #777;
+  font-size: 9px;
+}
+.wf-reference-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 15px 10px;
+  border: 1px dashed #ffffff28;
+  border-radius: 9px;
+  color: #aaa;
+  overflow: hidden;
+}
+.wf-reference-input:focus-within {
+  border-color: #fff;
+}
+.wf-reference-input input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.wf-reference-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 10px;
+}
+.wf-reference-file > span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #aaa;
+}
+.wf-standard-submit {
+  margin-top: 28px;
+  border-top: 1px solid #ffffff12;
+  padding-top: 20px;
+}
+.wf-standard-cost {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  color: #888;
+  margin-bottom: 14px;
+}
+.wf-standard-cost strong {
+  font-weight: 500;
+  color: #eee;
+}
+.wf-standard-generate {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.wf-standard-generate:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.wf-standard-balance {
+  display: block;
+  font-size: 9px;
+  color: #777;
+  margin-top: 16px;
+  text-align: center;
+}
+.wf-generation-workspace {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  background: #080808;
+}
+.wf-generation-workspace > span {
+  font-size: 11px;
+  color: #454545;
+}
+@media (max-width: 1150px) {
+  .wf-standard {
+    grid-template-columns: minmax(300px, 38%) minmax(0, 1fr);
+  }
+  .wf-generation-panel {
+    padding: 26px 20px;
+  }
+  .wf-heading-actions .wf-active-count {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .wf-standard {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .wf-generation-panel {
+    flex: 0 0 auto;
+    overflow: visible;
+    border-right: 0;
+    border-bottom: 1px solid #ffffff12;
+    padding: 24px 20px;
+  }
+  .wf-generation-workspace {
+    flex: 1 0 180px;
+  }
+  .wf-mode-switch button {
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+  .wf-standard-label textarea,
+  .wf-standard-label select {
+    font-size: 16px;
+  }
+  .wf-standard-label select {
+    padding: 10px 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wf-mode-switch button,
+  .wf-type-switch button {
+    transition: none;
+  }
+}
 .wf-shell {
   --wf-sidebar-width: 248px;
   height: 100dvh;
@@ -1339,11 +1614,18 @@
   .wf-sidebar {
     transform: translateX(-100%);
     visibility: hidden;
+    pointer-events: none;
     padding-top: calc(22px + var(--safe-top));
+    transition:
+      width 0.25s ease,
+      transform 0.25s ease,
+      visibility 0s linear 0.25s;
   }
   .wf-sidebar.is-mobile-open {
     transform: translateX(0);
     visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
   }
   .wf-sidebar-backdrop {
     display: block;
@@ -1352,6 +1634,18 @@
     z-index: 35;
     background: #000a;
     backdrop-filter: blur(3px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.25s ease,
+      visibility 0s linear 0.25s;
+  }
+  .wf-sidebar-backdrop.is-mobile-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
   }
   .wf-sidebar-close {
     display: flex;
@@ -1574,7 +1868,8 @@
     animation: none;
   }
   .wf-main,
-  .wf-sidebar {
+  .wf-sidebar,
+  .wf-sidebar-backdrop {
     transition: none;
   }
   .wf-canvas-scene {

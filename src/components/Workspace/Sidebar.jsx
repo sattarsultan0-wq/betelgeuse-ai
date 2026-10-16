@@ -36,9 +36,14 @@ export default function Sidebar({
       : 'Загрузка тарифа…';
   return (
     <>
-      {mobileOpen && (
-        <button className="wf-sidebar-backdrop" aria-label="Закрыть навигацию" onClick={onClose} />
-      )}
+      <button
+        type="button"
+        className={`wf-sidebar-backdrop ${mobileOpen ? 'is-mobile-open' : ''}`}
+        aria-label="Закрыть навигацию"
+        aria-hidden={!mobileOpen}
+        tabIndex={mobileOpen ? 0 : -1}
+        onClick={onClose}
+      />
       <aside
         className={`wf-sidebar ${compact ? 'is-compact' : ''} ${mobileOpen ? 'is-mobile-open' : ''}`}
         aria-label="Навигация рабочего пространства"

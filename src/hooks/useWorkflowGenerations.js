@@ -13,7 +13,8 @@ function remember(userId, value) {
   }
 }
 
-export default function useWorkflowGenerations(userId, refresh) {
+export default function useWorkflowGenerations(userId, refresh, scope = '') {
+  const requestOwner = scope ? `${userId}:${scope}` : userId;
   const [items, setItems] = useState([]),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(''),
@@ -35,7 +36,7 @@ export default function useWorkflowGenerations(userId, refresh) {
     setSubmitting(false);
     setPendingRequest(false);
     try {
-      const cached = JSON.parse(sessionStorage.getItem(pendingKey(userId)));
+      const cached = JSON.parse(sessionStorage.getItem(pendingKey(requestOwner)));
       if (cached?.key && cached?.body && cached?.nodeId) {
         pending.current = cached;
         setPendingRequest(true);
@@ -73,7 +74,7 @@ export default function useWorkflowGenerations(userId, refresh) {
       epoch.current++;
       controller.abort();
     };
-  }, [userId]);
+  }, [userId, requestOwner]);
 
   const activeIds = items
     .filter((item) => activeStatuses.includes(item.status))
@@ -145,7 +146,7 @@ export default function useWorkflowGenerations(userId, refresh) {
         request.body.sourceImageId = image.id;
       }
       // Persist the exact body/key before posting; ambiguous responses can be retried safely.
-      remember(userId, { ...request, file: undefined });
+      remember(requestOwner, { ...request, file: undefined });
       const { generation } = await api('/generations', {
         method: 'POST',
         headers: { 'Idempotency-Key': request.key },
@@ -161,7 +162,7 @@ export default function useWorkflowGenerations(userId, refresh) {
       });
       pending.current = null;
       setPendingRequest(false);
-      remember(userId, null);
+      remember(requestOwner, null);
       refreshRef.current().catch(() => {});
       return result;
     } catch (err) {
@@ -178,7 +179,7 @@ export default function useWorkflowGenerations(userId, refresh) {
       setPendingRequest(uncertain);
       if (!uncertain) {
         pending.current = null;
-        remember(userId, null);
+        remember(requestOwner, null);
       }
       return null;
     } finally {

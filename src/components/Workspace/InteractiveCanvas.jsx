@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertCircle,
@@ -10,9 +10,12 @@ import {
   Minus,
   Plus,
   Sparkles,
+  X,
 } from 'lucide-react';
 import { downloadVideo } from '../../services/api';
 import MediaPreview from './MediaPreview';
+import WorkflowNode from './WorkflowNode';
+import { placeNode } from '../../services/workflow-board';
 
 export const generationLabels = {
   uploading: 'Загружаем изображение',
@@ -27,7 +30,16 @@ const nodePosition = (index) => ({
   y: 65 + Math.floor(index / 3) * 335,
 });
 
-function GenerationNode({ item, position, selected, onSelect, onDerive, onOpen, onMove }) {
+function GenerationNode({
+  item,
+  position,
+  selected,
+  onSelect,
+  onDerive,
+  onOpen,
+  onMove,
+  onRemove,
+}) {
   const [downloadError, setDownloadError] = useState(''),
     [downloading, setDownloading] = useState(false);
   const active = ['queued', 'processing', 'uploading'].includes(item.status);
@@ -73,6 +85,16 @@ function GenerationNode({ item, position, selected, onSelect, onDerive, onOpen, 
           {active && <LoaderCircle size={11} className="spin" />}
           {generationLabels[item.status] || item.status}
         </small>
+        {onRemove && (
+          <button
+            type="button"
+            className="icon-button"
+            aria-label="Убрать генерацию с доски"
+            onClick={() => onRemove(item.id)}
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
       {item.status === 'completed' && (item.resultVideoUrl || item.resultImageUrl) ? (
         <MediaPreview item={item} onOpen={onOpen} />
@@ -119,8 +141,8 @@ function GenerationNode({ item, position, selected, onSelect, onDerive, onOpen, 
       )}
       {item.status === 'completed' && (
         <div className="wf-node-actions">
-          <button onClick={() => onDerive(item)} title="Создать связанный запрос с тем же промптом">
-            Продолжить идею <ArrowUpRight size={13} />
+          <button onClick={() => onDerive(item)} title="Добавить промпт на доску">
+            Добавить промпт <ArrowUpRight size={13} />
           </button>
           <Link to="/library" title="Генерация автоматически сохранена в истории">
             В библиотеке
@@ -155,25 +177,81 @@ export default function InteractiveCanvas({
   loading,
   error,
   positions,
-  connections,
   onMove,
   onDerive,
   onOpen,
+  nodes = [],
+  models = [],
+  onNodeChange,
+  onNodeDelete,
+  onRetryUpload,
+  onRemoveGeneration,
+  canvasApi,
+  initialViewport = { x: 0, y: 0, zoom: 1 },
+  onViewportChange,
 }) {
   const canvas = useRef(null),
+    lastCanvasBounds = useRef(null),
     pointers = useRef(new Map()),
     gesture = useRef(null),
     frame = useRef(null);
-  const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 }),
+  const [viewport, setViewport] = useState(initialViewport),
     [selected, setSelected] = useState(null),
     [dragging, setDragging] = useState(false);
   const viewportRef = useRef(viewport);
   viewportRef.current = viewport;
-  const resolved = Object.fromEntries(
-    items.map((item, index) => [item.id, positions[item.id] || nodePosition(index)]),
-  );
+  const resolved = Object.fromEntries([
+    ...items.map((item, index) => [item.id, positions[item.id] || nodePosition(index)]),
+    ...nodes.map((node) => [node.id, node.position]),
+  ]);
   const latest = useRef({ resolved, onMove });
   latest.current = { resolved, onMove };
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      const bounds = canvas.current?.getBoundingClientRect();
+      if (bounds?.width > 0 && bounds.height > 0) lastCanvasBounds.current = bounds;
+    });
+    observer.observe(canvas.current);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    onViewportChange?.(viewport);
+  }, [viewport, onViewportChange]);
+  const spawnCount = useRef(0);
+  useImperativeHandle(
+    canvasApi,
+    () => ({
+      selectNode: setSelected,
+      placeNode(size) {
+        const measured = canvas.current.getBoundingClientRect();
+        // File hashing/upload can finish while Standard is visible. Keep placement
+        // in the last visible Pro viewport instead of measuring a hidden element.
+        const bounds = measured.width > 0 ? measured : lastCanvasBounds.current;
+        const occupied =
+          measured.width > 0
+            ? [...canvas.current.querySelectorAll('.wf-node, .wf-editor-node')].map((element) => {
+                const rect = element.getBoundingClientRect();
+                return {
+                  left: rect.left - bounds.left,
+                  top: rect.top - bounds.top,
+                  width: rect.width,
+                  height: rect.height,
+                };
+              })
+            : Object.values(latest.current.resolved).map((position) => ({
+                left: viewportRef.current.x + position.x * viewportRef.current.zoom,
+                top: viewportRef.current.y + position.y * viewportRef.current.zoom,
+                width: 300 * viewportRef.current.zoom,
+                height: 360 * viewportRef.current.zoom,
+              }));
+        const next = placeNode(viewportRef.current, bounds, spawnCount.current++, size, occupied);
+        viewportRef.current = next.viewport;
+        setViewport(next.viewport);
+        return next.position;
+      },
+    }),
+    [],
+  );
   const focusedRequest = useRef(null);
   useEffect(() => {
     const request = items.findLast((item) => item.id.startsWith('request-'));
@@ -200,6 +278,7 @@ export default function InteractiveCanvas({
   useEffect(() => {
     const element = canvas.current;
     const wheel = (event) => {
+      if (event.target.closest('[data-canvas-interactive], input, textarea, select, video')) return;
       event.preventDefault();
       const rect = element.getBoundingClientRect();
       zoomAt(Math.exp(-event.deltaY * 0.0015), {
@@ -214,7 +293,7 @@ export default function InteractiveCanvas({
     };
   }, [zoomAt]);
   function fit() {
-    if (!items.length) {
+    if (!items.length && !nodes.length) {
       setViewport({ x: 0, y: 0, zoom: 1 });
       return;
     }
@@ -223,17 +302,23 @@ export default function InteractiveCanvas({
       minX = Math.min(...values.map((p) => p.x)),
       minY = Math.min(...values.map((p) => p.y));
     const width = Math.max(...values.map((p) => p.x + 300)) - minX,
-      height = Math.max(...values.map((p) => p.y + 320)) - minY;
+      height = Math.max(...values.map((p) => p.y + 360)) - minY;
     const zoom = clamp(
-      Math.min((rect.width - 70) / width, (rect.height - 240) / height),
+      Math.min((rect.width - 70) / width, (rect.height - 150) / height),
       0.35,
       1.2,
     );
     setViewport({ zoom, x: (rect.width - width * zoom) / 2 - minX * zoom, y: 45 - minY * zoom });
   }
   function down(event) {
-    if (event.button !== 0 || event.target.closest('a,button,video,input,textarea,select')) return;
+    if (
+      event.button !== 0 ||
+      event.target.closest('a,button,video,input,textarea,select,[data-canvas-interactive]')
+    )
+      return;
     const handle = event.target.closest('[data-node-handle]');
+    const editorNode = event.target.closest('[data-editor-node]');
+    const nodeId = handle?.dataset.nodeHandle || editorNode?.dataset.editorNode;
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     event.currentTarget.setPointerCapture(event.pointerId);
     if (pointers.current.size === 2) {
@@ -247,13 +332,13 @@ export default function InteractiveCanvas({
       };
     } else {
       gesture.current = {
-        type: handle ? 'node' : 'pan',
-        id: handle?.dataset.nodeHandle,
+        type: nodeId ? 'node' : 'pan',
+        id: nodeId,
         start: { x: event.clientX, y: event.clientY },
-        position: handle ? { ...resolved[handle.dataset.nodeHandle] } : { ...viewportRef.current },
+        position: nodeId ? { ...resolved[nodeId] } : { ...viewportRef.current },
         zoom: viewportRef.current.zoom,
       };
-      if (handle) setSelected(handle.dataset.nodeHandle);
+      if (nodeId) setSelected(nodeId);
     }
     setDragging(true);
   }
@@ -304,12 +389,6 @@ export default function InteractiveCanvas({
       setDragging(false);
     }
   }
-  const edges = items.flatMap((item) => {
-    const parentId = item.parentId || connections[item.id];
-    return parentId && resolved[parentId]
-      ? [{ id: item.id, from: resolved[parentId], to: resolved[item.id] }]
-      : [];
-  });
   return (
     <div
       ref={canvas}
@@ -331,14 +410,6 @@ export default function InteractiveCanvas({
         className="wf-canvas-scene"
         style={{ transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})` }}
       >
-        <svg className="wf-canvas-edges" aria-hidden="true">
-          {edges.map(({ id, from, to }) => (
-            <path
-              key={id}
-              d={`M ${from.x + 300} ${from.y + 155} C ${from.x + 365} ${from.y + 155}, ${to.x - 65} ${to.y + 155}, ${to.x} ${to.y + 155}`}
-            />
-          ))}
-        </svg>
         {items.map((item) => (
           <GenerationNode
             key={item.id}
@@ -349,6 +420,20 @@ export default function InteractiveCanvas({
             onMove={onMove}
             onOpen={onOpen}
             onDerive={onDerive}
+            onRemove={onRemoveGeneration}
+          />
+        ))}
+        {nodes.map((node) => (
+          <WorkflowNode
+            key={node.id}
+            node={node}
+            model={models.find((model) => model.id === node.data.modelId)}
+            selected={selected === node.id}
+            onSelect={setSelected}
+            onMove={onMove}
+            onChange={onNodeChange}
+            onDelete={onNodeDelete}
+            onRetryUpload={onRetryUpload}
           />
         ))}
       </div>
@@ -358,7 +443,8 @@ export default function InteractiveCanvas({
           <p>Загружаем твоё пространство…</p>
         </div>
       ) : (
-        !items.length && (
+        !items.length &&
+        !nodes.length && (
           <div className="wf-canvas-empty">
             <span className="wf-empty-symbol">✦</span>
             <span className="eyebrow">ЗДЕСЬ НАЧИНАЕТСЯ НОВАЯ ИДЕЯ</span>
@@ -368,9 +454,9 @@ export default function InteractiveCanvas({
               <span className="dim">пространство.</span>
             </h2>
             <p>
-              Опиши сцену внизу.
+              Добавь промпт, модель или файл.
               <br />
-              Каждая генерация появится отдельным узлом.
+              Собери свою идею на доске.
             </p>
           </div>
         )
