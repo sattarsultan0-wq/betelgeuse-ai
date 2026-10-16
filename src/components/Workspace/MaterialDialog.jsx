@@ -2,11 +2,17 @@ import { useState } from 'react';
 import { Download } from 'lucide-react';
 import Modal from '../UI/Modal';
 import { downloadImage, downloadVideo } from '../../services/api';
+import GenerationPending, { FrameTracing, isGenerationActive } from './GenerationPending';
 
 export default function MaterialDialog({ item, onClose }) {
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
-  const image = item?.kind === 'image' || item?.resultImageUrl;
+  const image =
+    item?.kind === 'image' ||
+    item?.generationType === 'Image' ||
+    item?.resultImageUrl ||
+    item?.resultImageUrls?.length;
+  const active = isGenerationActive(item?.status);
   return (
     <Modal
       open={!!item}
@@ -16,10 +22,16 @@ export default function MaterialDialog({ item, onClose }) {
     >
       {item && (
         <>
-          {image ? (
+          {active && <FrameTracing />}
+          {active ? (
+            <GenerationPending />
+          ) : item.status === 'failed' ? (
+            <p className="wf-error" role="alert">
+              {item.errorMessage || 'Генерация не завершена.'}
+            </p>
+          ) : image ? (
             <img
-              src={item.resultImageUrl || item.url}
-              crossOrigin="use-credentials"
+              src={item.resultImageUrl || item.resultImageUrls?.[0] || item.url}
               alt={item.name || 'Изображение'}
             />
           ) : item.resultVideoUrl ? (
@@ -36,6 +48,18 @@ export default function MaterialDialog({ item, onClose }) {
           <p className="wf-material-prompt">{item.prompt || item.name}</p>
           <div className="wf-material-meta">
             <span>{new Date(item.createdAt).toLocaleString('ru-RU')}</span>
+            {image &&
+              item.kind !== 'image' &&
+              (item.resultImageUrl || item.resultImageUrls?.length) && (
+                <a
+                  className="glass-button compact"
+                  href={item.resultImageUrl || item.resultImageUrls?.[0]}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Открыть оригинал
+                </a>
+              )}
             {(item.kind === 'image' || (!image && item.resultVideoUrl)) && (
               <button
                 className="glass-button compact"

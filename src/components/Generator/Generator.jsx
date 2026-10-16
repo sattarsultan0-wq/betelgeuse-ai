@@ -141,6 +141,10 @@ export default function Generator() {
       textarea.current?.focus();
       return;
     }
+    if (!user.isAdmin) {
+      setError('Генерация доступна только администратору.');
+      return;
+    }
     if (mode === 'IMAGE_TO_VIDEO' && !file) {
       setError('Добавь изображение для этого режима.');
       return;
@@ -381,7 +385,7 @@ export default function Generator() {
           <button
             className="glass-button primary generate-button"
             onClick={generate}
-            disabled={busy || (!model?.available && !!user)}
+            disabled={busy || (!!user && (!user.isAdmin || !model?.available))}
           >
             {busy ? <LoaderCircle size={18} className="spin" /> : <Sparkles size={18} />}{' '}
             {busy ? statuses[phase] : 'СГЕНЕРИРОВАТЬ ВИДЕО'}
@@ -396,7 +400,7 @@ export default function Generator() {
                 : 'Войди, чтобы начать создавать'}
             </span>
             <span>
-              {user?.isAdmin ? 0 : cost ?? '—'} ед. квоты / {duration} сек
+              {user?.isAdmin ? 0 : (cost ?? '—')} ед. квоты / {duration} сек
             </span>
           </div>
         </div>

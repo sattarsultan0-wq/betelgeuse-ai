@@ -58,7 +58,13 @@ export default function PromptComposer({
   const insufficient = cost != null && !user.isAdmin && (user.generationCredits ?? 0) < cost;
   const locked = submitting || pendingRequest;
   const canSubmit =
-    !loading && !locked && apiModel?.available && configured && capabilities && !insufficient;
+    user.isAdmin &&
+    !loading &&
+    !locked &&
+    apiModel?.available &&
+    configured &&
+    capabilities &&
+    !insufficient;
   useEffect(() => {
     if (!capabilities) return;
     setDuration((value) =>

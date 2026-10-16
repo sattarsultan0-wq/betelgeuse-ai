@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '../services/api';
 
 const activeStatuses = ['queued', 'processing'];
+const generationIdPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const pendingKey = (userId) => `betelgeuse:workflow-request:${userId}`;
 function remember(userId, value) {
   try {
@@ -38,7 +39,7 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
     try {
       const cached = JSON.parse(sessionStorage.getItem(pendingKey(requestOwner)));
       if (cached?.key && cached?.body && cached?.nodeId) {
-        pending.current = cached;
+        pending.current = { ...cached, uncertain: true };
         setPendingRequest(true);
         setItems([
           {
@@ -77,7 +78,14 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
   }, [userId, requestOwner]);
 
   const activeIds = items
-    .filter((item) => activeStatuses.includes(item.status))
+    // Optimistic request-* cards can stay queued while POST is in flight.
+    // Poll only accepted generations with a backend UUID.
+    .filter(
+      (item) =>
+        activeStatuses.includes(item.status) &&
+        !item.requestPending &&
+        generationIdPattern.test(item.id),
+    )
     .map((item) => item.id)
     .join(',');
   useEffect(() => {
@@ -167,7 +175,9 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
       return result;
     } catch (err) {
       if (epoch.current !== current) return null;
-      const uncertain = !err.status || err.status >= 500;
+      // A rejection of a retry (e.g. 429/403) says nothing about the original POST.
+      // Retain the original key until the accepted task is positively confirmed.
+      const uncertain = request.uncertain || !err.status || err.status >= 500;
       setItems((rows) =>
         rows.map((row) =>
           row.id === request.nodeId
@@ -177,7 +187,10 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
       );
       setError(err.message);
       setPendingRequest(uncertain);
-      if (!uncertain) {
+      if (uncertain) {
+        request.uncertain = true;
+        remember(requestOwner, { ...request, file: undefined });
+      } else {
         pending.current = null;
         remember(requestOwner, null);
       }

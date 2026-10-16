@@ -5,8 +5,8 @@ import { Film, Image as ImageIcon, Play } from 'lucide-react';
 export default function MediaPreview({ item, onOpen }) {
   const ref = useRef(null),
     [visible, setVisible] = useState(false);
-  const image = item.kind === 'image' || item.resultImageUrl;
-  const src = item.resultImageUrl || item.resultVideoUrl || item.url;
+  const image = item.kind === 'image' || item.resultImageUrl || item.resultImageUrls?.length;
+  const src = item.resultImageUrl || item.resultImageUrls?.[0] || item.resultVideoUrl || item.url;
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), {
       rootMargin: '80px',
@@ -22,12 +22,7 @@ export default function MediaPreview({ item, onOpen }) {
       aria-label={`Открыть материал: ${item.prompt || item.name || 'Результат генерации'}`}
     >
       {image && src ? (
-        <img
-          src={src}
-          crossOrigin="use-credentials"
-          alt={item.name || 'Результат генерации'}
-          loading="lazy"
-        />
+        <img src={src} alt={item.name || 'Результат генерации'} loading="lazy" />
       ) : src ? (
         <>
           <video

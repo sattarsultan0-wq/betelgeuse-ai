@@ -4,12 +4,12 @@ import { LoaderCircle, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import Sidebar from './Sidebar';
-import { Star } from '../UI/Brand';
 import '../../styles/workflow.css';
 
 export default function WorkspaceLayout() {
   const { user } = useAuth();
   const { pathname } = useLocation();
+  const isWorkflow = pathname.replace(/\/$/, '') === '/workflow';
   const [compact, setCompact] = useState(() => {
     try {
       return localStorage.getItem('betelgeuse:sidebar-compact') === 'true';
@@ -71,6 +71,9 @@ export default function WorkspaceLayout() {
       return !value;
     });
   }
+  function toggleMobileNavigation() {
+    setMobileOpen((open) => !open);
+  }
   return (
     <div
       className={`wf-shell ${compact ? 'wf-shell-compact' : ''} ${pathname.replace(/\/$/, '') === '/workflow' ? (workflowReady ? 'wf-shell-ready' : 'wf-route-loading') : ''}`}
@@ -84,18 +87,17 @@ export default function WorkspaceLayout() {
         billingError={billingError}
       />
       <div className="wf-main">
-        <div className="wf-mobile-bar">
+        {!isWorkflow && (
           <button
-            className="icon-button"
+            type="button"
+            className="icon-button wf-mobile-menu"
             aria-label="Открыть навигацию"
             aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={toggleMobileNavigation}
           >
             <Menu size={19} />
           </button>
-          <span className="wf-mobile-brand"><Star /> BETELGEUSE</span>
-          <small>{user.generationCredits ?? 0} кр.</small>
-        </div>
+        )}
         <Suspense
           fallback={
             <div className="wf-page-loading">
@@ -105,7 +107,15 @@ export default function WorkspaceLayout() {
           }
         >
           <Outlet
-            context={{ billing, billingError, billingLoading, setWorkflowReady, showWorkflowIntro }}
+            context={{
+              billing,
+              billingError,
+              billingLoading,
+              setWorkflowReady,
+              showWorkflowIntro,
+              mobileOpen,
+              toggleMobileNavigation,
+            }}
           />
         </Suspense>
       </div>

@@ -1,0 +1,108 @@
+/* One small SVG stroke; no gradients, filters, shadows or animation loops in JS. */
+.wf-frame-tracing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+.wf-frame-tracing-segment {
+  width: calc(100% - 1px);
+  height: calc(100% - 1px);
+  rx: var(--wf-frame-radius, 13.5px);
+  ry: var(--wf-frame-radius, 13.5px);
+  opacity: 0.8;
+  animation: wf-frame-trace 3s linear infinite;
+}
+.wf-generation-pending {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  color: #fff;
+}
+.wf-neural-pulse {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 36px;
+}
+.wf-neural-pulse > span {
+  width: 2px;
+  height: 36px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: scaleY(0.333333);
+  transform-origin: center;
+  opacity: 0.4;
+  animation: wf-neural-pulse 1.4s ease-in-out infinite;
+  animation-delay: var(--wf-pulse-delay);
+}
+.wf-generating-label {
+  color: #fff;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+}
+.wf-generation-result > .wf-generation-pending {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: 14px;
+}
+.wf-node-waiting > .wf-generation-pending {
+  width: 100%;
+  height: 100%;
+}
+.wf-material-dialog > .wf-generation-pending {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 60dvh;
+  border-radius: 10px;
+  background: #050505;
+}
+.wf-material-dialog .wf-frame-tracing {
+  --wf-frame-radius: 19.5px;
+}
+/* Both workflow modes stay mounted. Suspend animations in the hidden mode. */
+.wf-mode-panel[hidden] .wf-frame-tracing-segment,
+.wf-mode-panel[hidden] .wf-neural-pulse > span,
+.wf-pro-content[aria-hidden='true'] .wf-frame-tracing-segment,
+.wf-pro-content[aria-hidden='true'] .wf-neural-pulse > span {
+  animation-play-state: paused;
+}
+@keyframes wf-frame-trace {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes wf-neural-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.333333);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 0.9;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wf-frame-tracing-segment,
+  .wf-neural-pulse > span {
+    animation: none;
+  }
+  .wf-frame-tracing-segment {
+    opacity: 0.35;
+  }
+  .wf-neural-pulse > span {
+    transform: scaleY(0.5);
+    opacity: 0.65;
+  }
+}

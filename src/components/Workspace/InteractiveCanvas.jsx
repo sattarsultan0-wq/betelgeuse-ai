@@ -9,11 +9,11 @@ import {
   LoaderCircle,
   Minus,
   Plus,
-  Sparkles,
   X,
 } from 'lucide-react';
 import { downloadVideo } from '../../services/api';
 import MediaPreview from './MediaPreview';
+import GenerationPending, { FrameTracing, isGenerationActive } from './GenerationPending';
 import WorkflowNode from './WorkflowNode';
 import { placeNode } from '../../services/workflow-board';
 
@@ -42,13 +42,15 @@ function GenerationNode({
 }) {
   const [downloadError, setDownloadError] = useState(''),
     [downloading, setDownloading] = useState(false);
-  const active = ['queued', 'processing', 'uploading'].includes(item.status);
+  const active = isGenerationActive(item.status);
   return (
     <article
       className={`wf-node ${selected ? 'is-selected' : ''} ${active ? 'is-active' : ''}`}
       style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+      aria-busy={active}
       onClick={() => onSelect(item.id)}
     >
+      {active && <FrameTracing />}
       <div
         className="wf-node-handle"
         data-node-handle={item.id}
@@ -82,7 +84,6 @@ function GenerationNode({
               : item.model}
         </span>
         <small className={`wf-node-status wf-node-status-${item.status}`}>
-          {active && <LoaderCircle size={11} className="spin" />}
           {generationLabels[item.status] || item.status}
         </small>
         {onRemove && (
@@ -96,17 +97,13 @@ function GenerationNode({
           </button>
         )}
       </div>
-      {item.status === 'completed' && (item.resultVideoUrl || item.resultImageUrl) ? (
+      {item.status === 'completed' &&
+      (item.resultVideoUrl || item.resultImageUrl || item.resultImageUrls?.length) ? (
         <MediaPreview item={item} onOpen={onOpen} />
       ) : (
         <div className="wf-node-waiting">
           {active ? (
-            <>
-              <div className="wf-node-loader">
-                <Sparkles size={25} />
-              </div>
-              <p>Дай идее немного времени</p>
-            </>
+            <GenerationPending />
           ) : item.status === 'failed' ? (
             <>
               <AlertCircle size={26} />

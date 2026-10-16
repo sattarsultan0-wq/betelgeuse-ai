@@ -20,7 +20,7 @@ export default function AIModels() {
             >
               {aiModels.map((model) => (
                 <div className={`home-models-item home-models-item-${model.id}`} key={model.id}>
-                  <img className={'model-logo'} src={model.mark}/>
+                  {model.mark && <img className="model-logo" src={model.mark} alt="" />}
                   <span>{model.name}</span>
                   <span className="home-models-star" aria-hidden="true">
                     ✦

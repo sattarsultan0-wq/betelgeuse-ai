@@ -69,8 +69,8 @@ export default function Library() {
       <div className="wf-library-toolbar">
         <div className="wf-library-tabs" role="group" aria-label="Тип материалов">
           {[
-            ['video', 'Видео'],
-            ['image', 'Изображения'],
+            ['video', 'Генерации'],
+            ['image', 'Исходные изображения'],
           ].map(([id, label]) => (
             <button
               key={id}
@@ -110,7 +110,7 @@ export default function Library() {
           <h2>Здесь начнётся твоя история</h2>
           <p>
             {tab === 'image'
-              ? 'Загруженные исходные изображения появятся здесь. Генерация изображений пока не подключена.'
+              ? 'Загруженные исходные изображения появятся здесь.'
               : 'Создай первое видео — оно автоматически появится в библиотеке.'}
           </p>
           <Link className="glass-button primary" to="/workflow">
@@ -121,7 +121,10 @@ export default function Library() {
         <div className="wf-library-grid">
           {items.map((item) => (
             <article className="wf-library-card" key={item.id}>
-              {item.kind === 'image' || item.resultVideoUrl || item.resultImageUrl ? (
+              {item.kind === 'image' ||
+              item.resultVideoUrl ||
+              item.resultImageUrl ||
+              item.resultImageUrls?.length ? (
                 <MediaPreview item={item} onOpen={setMaterial} />
               ) : (
                 <div className="wf-library-placeholder">

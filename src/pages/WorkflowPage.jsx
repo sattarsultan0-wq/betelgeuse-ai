@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Menu, Sparkles } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
@@ -9,9 +9,15 @@ import StandardWorkflow from '../components/Workspace/StandardWorkflow';
 import WorkflowLoader from '../components/Workspace/WorkflowLoader';
 
 export default function WorkflowPage() {
-  const { billingLoading, setWorkflowReady, showWorkflowIntro } = useOutletContext();
+  const {
+    billingLoading,
+    setWorkflowReady,
+    showWorkflowIntro,
+    mobileOpen,
+    toggleMobileNavigation,
+  } = useOutletContext();
   const { user, refresh } = useAuth();
-  const generations = useWorkflowGenerations(user.id, refresh);
+  const generations = useWorkflowGenerations(user.id, refresh, 'standard');
   const { items, loading } = generations;
   const [models, setModels] = useState([]),
     [modelError, setModelError] = useState('');
@@ -86,6 +92,15 @@ export default function WorkflowPage() {
       <section className="wf-workspace">
         <header className="wf-workspace-heading">
           <div>
+            <button
+              type="button"
+              className="icon-button wf-mobile-menu"
+              aria-label="Открыть навигацию"
+              aria-expanded={mobileOpen}
+              onClick={toggleMobileNavigation}
+            >
+              <Menu size={19} />
+            </button>
             <h1>WORKSPACE</h1>
             <span className="wf-workspace-badge">ТВОЯ ТВОРЧЕСКАЯ ОРБИТА</span>
           </div>
@@ -119,7 +134,7 @@ export default function WorkflowPage() {
           <StandardWorkflow
             key={user.id}
             user={user}
-            refresh={refresh}
+            generations={generations}
             models={models}
             modelError={modelError}
             modelsLoading={modelsLoading}
