@@ -447,7 +447,6 @@ export default function InteractiveCanvas({
         !nodes.length && (
           <div className="wf-canvas-empty">
             <span className="wf-empty-symbol">✦</span>
-            <span className="eyebrow">ЗДЕСЬ НАЧИНАЕТСЯ НОВАЯ ИДЕЯ</span>
             <h2>
               Дай воображению
               <br />

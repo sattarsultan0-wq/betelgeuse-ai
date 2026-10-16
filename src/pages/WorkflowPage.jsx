@@ -86,8 +86,7 @@ export default function WorkflowPage() {
       <section className="wf-workspace">
         <header className="wf-workspace-heading">
           <div>
-            <span className="wf-workspace-symbol">✦</span>
-            <h1>Workflow</h1>
+            <h1>WORKSPACE</h1>
             <span className="wf-workspace-badge">ТВОЯ ТВОРЧЕСКАЯ ОРБИТА</span>
           </div>
           <div className="wf-heading-actions">
