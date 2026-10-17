@@ -103,7 +103,7 @@ export default function WorkflowPage() {
             >
               <Menu size={19} />
             </button>
-            <h1>{t('WORKSPACE')}</h1>
+            WORKSPACE
             <span className="wf-workspace-badge">{t('ТВОЯ ТВОРЧЕСКАЯ ОРБИТА')}</span>
           </div>
           <div className="wf-heading-actions">
@@ -124,10 +124,10 @@ export default function WorkflowPage() {
                 aria-pressed={mode === 'standard'}
                 onClick={() => changeMode('standard')}
               >
-                {t('Standard')}
+                Basic
               </button>
               <button type="button" aria-pressed={mode === 'pro'} onClick={() => changeMode('pro')}>
-                {t('Pro')}
+                Pro
               </button>
             </div>
           </div>

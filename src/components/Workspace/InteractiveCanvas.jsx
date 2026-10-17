@@ -452,9 +452,7 @@ export default function InteractiveCanvas({
           <div className="wf-canvas-empty">
             <span className="wf-empty-symbol">✦</span>
             <h2>
-              {t('Дай воображению')}
-              <br />
-              <span className="dim">{t('пространство.')}</span>
+              {t('Ведутся технические работы')}
             </h2>
             <p>
               {t('Добавь промпт, модель или файл.')}

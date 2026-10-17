@@ -1,6 +1,7 @@
 /* Shared theme tokens. Original dark shades are preserved exactly. */
 :root {
   --bg-primary: #050505;
+  --canvas-bg: #161616;
   --text-primary: #fff;
   --text-secondary: #b7b7b7;
   --text-muted: #888;
@@ -237,6 +238,7 @@
   color: var(--text-primary);
   background: var(--bg-primary);
   --bg-primary: #f2f4f8;
+  --canvas-bg: var(--bg-primary);
   --bg: var(--bg-primary);
   --text-primary: #192231;
   --text-secondary: #465368;

@@ -278,6 +278,9 @@
   gap: 12px;
   font-size: 12px;
 }
+.wf-generation-result-meta span{
+  color: rgb(210, 210, 210);
+}
 .wf-generation-result-prompt {
   font-size: 12px;
   color: var(--text-aaaaaa);
@@ -745,7 +748,7 @@
   cursor: grab;
   background:
     radial-gradient(ellipse at 55% 40%, var(--wash-ffffff-12), transparent 65%),
-    var(--surface-080808);
+    var(--canvas-bg);
 }
 .wf-canvas.is-dragging {
   cursor: grabbing;
