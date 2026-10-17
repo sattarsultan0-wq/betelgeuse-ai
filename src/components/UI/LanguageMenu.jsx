@@ -9,6 +9,7 @@ export default function LanguageMenu() {
   const root = useRef(null),
     trigger = useRef(null),
     menu = useRef(null);
+  const pointerWithin = useRef(false);
   const id = useId();
   useEffect(() => {
     if (!open) return;
@@ -27,7 +28,17 @@ export default function LanguageMenu() {
     <div
       className="language-menu"
       ref={root}
+      onPointerDownCapture={() => {
+        pointerWithin.current = true;
+      }}
+      onPointerCancelCapture={() => {
+        pointerWithin.current = false;
+      }}
+      onClickCapture={() => {
+        pointerWithin.current = false;
+      }}
       onKeyDown={(event) => {
+        pointerWithin.current = false;
         if (event.key === 'Escape' && open) {
           event.stopPropagation();
           close();
@@ -51,7 +62,14 @@ export default function LanguageMenu() {
         if (event.key === 'Tab') setOpen(false);
       }}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+        // Safari may move focus to null or the enclosing dialog before a touch
+        // generates click. Keep the menu mounted throughout an internal gesture.
+        // Outside pointerdown and Tab still dismiss it independently.
+        if (
+          !pointerWithin.current &&
+          event.relatedTarget &&
+          !event.currentTarget.contains(event.relatedTarget)
+        ) setOpen(false);
       }}
     >
       <button

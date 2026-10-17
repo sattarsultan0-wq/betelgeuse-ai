@@ -68,10 +68,14 @@ function rounded(context, rect, amount) {
   context.beginPath();
   context.roundRect(rect.left, rect.top, rect.width, rect.height, amount);
 }
-function localMedia(source) {
+function readableMedia(source) {
   try {
     const url = new URL(source.currentSrc || source.src, location.href);
-    return url.origin === location.origin || ['data:', 'blob:'].includes(url.protocol);
+    return (
+      url.origin === location.origin ||
+      ['data:', 'blob:'].includes(url.protocol) ||
+      ['anonymous', 'use-credentials'].includes(source.crossOrigin)
+    );
   } catch {
     return false;
   }
@@ -82,7 +86,7 @@ function paintMedia(context, element, rect, style, region) {
   if (
     !width ||
     !height ||
-    !localMedia(element) ||
+    !readableMedia(element) ||
     (element.tagName === 'VIDEO' && element.readyState < 2)
   )
     return;
@@ -221,6 +225,7 @@ export function createGlassScene() {
       context.fillRect(0, 0, width, height);
       context.setTransform(density, 0, 0, density, -region.left * density, -region.top * density);
       let moving = false,
+        unreadableMedia = false,
         elements = 0;
       function visit(element, opacity = 1) {
         if (
@@ -265,6 +270,15 @@ export function createGlassScene() {
         )
           context.clip();
         if (['IMG', 'VIDEO'].includes(element.tagName)) {
+          // The native backdrop can show external media that Canvas cannot read.
+          // Never substitute the dark poster underneath a visible remote video
+          // in the opaque bevel; use native glass for this header region instead.
+          const hasFrame =
+            element.tagName === 'VIDEO'
+              ? element.readyState >= 2 && element.videoWidth > 0
+              : element.naturalWidth > 0;
+          if (hasFrame && !readableMedia(element) && intersects(rect, bounds))
+            unreadableMedia = true;
           paintMedia(context, element, rect, style, region);
           if (element.tagName === 'VIDEO' && !element.paused && element.readyState >= 2)
             moving = true;
@@ -295,7 +309,7 @@ export function createGlassScene() {
         context.restore();
       }
       for (const root of document.querySelectorAll('#main, #root > footer')) visit(root);
-      return { canvas, context, region, density, moving, elements };
+      return { canvas, context, region, density, moving, elements, unreadableMedia };
     },
   };
 }

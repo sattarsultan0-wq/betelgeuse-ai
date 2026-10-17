@@ -42,7 +42,9 @@ export default function HeaderMediaGlass() {
         canvas.dataset.active = drawn ? 'true' : 'false';
         delete canvas.dataset.error;
         canvas.dataset.elements = String(scene.elements);
-        if (scene.moving && !motion.matches) timer = setTimeout(draw, 50);
+        // Native glass follows external video directly; no repeated pixel pass
+        // is needed until scrolling, resizing or a media/DOM change requests one.
+        if (scene.moving && !scene.unreadableMedia && !motion.matches) timer = setTimeout(draw, 50);
       } catch (error) {
         if (disposed) return;
         canvas.dataset.active = 'false';

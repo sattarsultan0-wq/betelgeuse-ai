@@ -39,6 +39,10 @@ export function createMediaGlassRenderer(canvas) {
   return {
     async draw(scene, bounds, strength = 1) {
       if (disposed) return false;
+      if (scene.unreadableMedia) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        return false;
+      }
       const input = scene.context.getImageData(0, 0, scene.canvas.width, scene.canvas.height);
       const spec = {
         canvas: { width: scene.canvas.width, height: scene.canvas.height },
