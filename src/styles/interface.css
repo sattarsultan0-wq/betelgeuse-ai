@@ -252,7 +252,7 @@
   opacity: 1;
 }
 .hero-overlay {
-  background-color: rgba(9, 9, 9, 0.9);
+  background-color: rgba(9, 9, 9, 0.5);
 }
 .hero-topline {
   position: relative;
