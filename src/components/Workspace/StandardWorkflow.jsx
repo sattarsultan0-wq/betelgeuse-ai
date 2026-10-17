@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, ImagePlus, Sparkles, X } from 'lucide-react';
 import { api } from '../../services/api';
@@ -19,6 +20,7 @@ export default function StandardWorkflow({
   modelError,
   modelsLoading,
 }) {
+  const { t } = useI18n();
   const [type, setType] = useState('Image'),
     [mode, setMode] = useState('TEXT_TO_IMAGE');
   const [modelId, setModelId] = useState(''),
@@ -188,15 +190,15 @@ export default function StandardWorkflow({
         <form
           className="wf-generation-panel"
           onSubmit={submit}
-          aria-label="Standard generation"
+          aria-label={t('Standard generation')}
           inert={isMobile && mobileScreen === 'results'}
           aria-hidden={isMobile && mobileScreen === 'results' ? true : undefined}
         >
           <div className="wf-standard-intro">
-            <span className="wf-standard-eyebrow">GENERATION PANEL</span>
-            <h2>Опиши свой замысел и выбери модель</h2>
+            <span className="wf-standard-eyebrow">{t('GENERATION PANEL')}</span>
+            <h2>{t('Опиши свой замысел и выбери модель')}</h2>
           </div>
-          <div className="wf-type-switch" role="group" aria-label="Тип генерации">
+          <div className="wf-type-switch" role="group" aria-label={t('Тип генерации')}>
             {['Image', 'Video'].map((value) => (
               <button
                 key={value}
@@ -211,19 +213,19 @@ export default function StandardWorkflow({
                   })
                 }
               >
-                {value}
+                {t(value)}
               </button>
             ))}
           </div>
           <label className="wf-standard-label">
-            Промпт
+            {t('Промпт')}
             <textarea
-              aria-label="Промпт Standard"
+              aria-label={t('Промпт Standard')}
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
               maxLength={2000}
               rows={7}
-              placeholder="Опиши, что хочешь создать…"
+              placeholder={t('Опиши, что хочешь создать…')}
               disabled={locked}
               onKeyDown={(event) => {
                 if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
@@ -235,9 +237,9 @@ export default function StandardWorkflow({
           </label>
           <div className="wf-standard-fields">
             <label className="wf-standard-label">
-              Режим
+              {t('Режим')}
               <select
-                aria-label="Режим Standard"
+                aria-label={t('Режим Standard')}
                 value={mode}
                 disabled={locked || !modes.length}
                 onChange={(event) =>
@@ -249,20 +251,20 @@ export default function StandardWorkflow({
               >
                 {modes.map((key) => (
                   <option key={key} value={key}>
-                    {modeLabels[key] || key}
+                    {t(modeLabels[key] || key)}
                   </option>
                 ))}
               </select>
             </label>
             <label className="wf-standard-label">
-              AI-модель
+              {t('AI-модель')}
               <select
-                aria-label="AI-модель Standard"
+                aria-label={t('AI-модель Standard')}
                 value={model?.id || ''}
                 disabled={locked || !available.length}
                 onChange={(event) => updateSelection(() => setModelId(event.target.value))}
               >
-                {!available.length && <option value="">Нет совместимых моделей</option>}
+                {!available.length && <option value="">{t('Нет совместимых моделей')}</option>}
                 {available.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.name}
@@ -277,18 +279,19 @@ export default function StandardWorkflow({
             return (
               <div className="wf-standard-reference" key={key}>
                 <label className="wf-standard-label">
-                  {rule.label}
+                  {t(rule.label)}
                   <span className="wf-reference-hint">
-                    {rule.min === rule.max ? rule.max : `${rule.min}–${rule.max}`} ·{' '}
-                    {rule.type === 'video' ? 'MP4' : 'JPEG, PNG, WebP'} · до{' '}
-                    {rule.maxBytes / 1024 / 1024} МБ
+                    {t(rule.min === rule.max ? rule.max : `${rule.min}–${rule.max}`)} ·{' '}
+                    {t(rule.type === 'video' ? 'MP4' : 'JPEG, PNG, WebP')}
+                    {t(' · до')} {t(rule.maxBytes / 1024 / 1024)}
+                    {t(' МБ')}
                   </span>
                   <span className="wf-reference-input">
                     <ImagePlus size={16} />
-                    {entries.length ? 'Заменить файлы' : 'Прикрепить файл'}
+                    {t(entries.length ? 'Заменить файлы' : 'Прикрепить файл')}
                     <input
                       type="file"
-                      aria-label={rule.label}
+                      aria-label={t(rule.label)}
                       accept={rule.mimeTypes.join(',')}
                       multiple={rule.max > 1}
                       disabled={locked}
@@ -305,7 +308,7 @@ export default function StandardWorkflow({
                     <button
                       type="button"
                       className="icon-button"
-                      aria-label={`Убрать ${entry.file.name}`}
+                      aria-label={t('Убрать {{v0}}', { v0: entry.file.name })}
                       disabled={locked}
                       onClick={() =>
                         setAttachments((current) => ({
@@ -330,9 +333,9 @@ export default function StandardWorkflow({
               .filter(([, values]) => values?.length)
               .map(([key, values, label]) => (
                 <label className="wf-standard-label" key={key}>
-                  {label}
+                  {t(label)}
                   <select
-                    aria-label={label}
+                    aria-label={t(label)}
                     value={normalized[key]}
                     disabled={locked}
                     onChange={(event) =>
@@ -344,13 +347,15 @@ export default function StandardWorkflow({
                   >
                     {values.map((value) => (
                       <option key={value} value={value}>
-                        {key === 'duration'
-                          ? `${value} сек`
-                          : value === 'source'
-                            ? 'По изображению'
-                            : value === 'standard'
-                              ? 'Стандартное'
-                              : value}
+                        {t(
+                          key === 'duration'
+                            ? `${value} сек`
+                            : value === 'source'
+                              ? 'По изображению'
+                              : value === 'standard'
+                                ? 'Стандартное'
+                                : value,
+                        )}
                       </option>
                     ))}
                   </select>
@@ -358,10 +363,10 @@ export default function StandardWorkflow({
               ))}
             {Object.entries(caps?.parameters || {}).map(([key, rule]) => (
               <label className="wf-standard-label" key={key}>
-                {rule.label}
+                {t(rule.label)}
                 {rule.type === 'boolean' ? (
                   <select
-                    aria-label={rule.label}
+                    aria-label={t(rule.label)}
                     value={String(normalized.parameters[key])}
                     disabled={locked}
                     onChange={(event) =>
@@ -371,12 +376,12 @@ export default function StandardWorkflow({
                       }))
                     }
                   >
-                    <option value="true">Включён</option>
-                    <option value="false">Выключен</option>
+                    <option value="true">{t('Включён')}</option>
+                    <option value="false">{t('Выключен')}</option>
                   </select>
                 ) : (
                   <select
-                    aria-label={rule.label}
+                    aria-label={t(rule.label)}
                     value={normalized.parameters[key]}
                     disabled={locked}
                     onChange={(event) =>
@@ -388,7 +393,7 @@ export default function StandardWorkflow({
                   >
                     {rule.values.map((value) => (
                       <option key={value} value={value}>
-                        {value}
+                        {t(value)}
                       </option>
                     ))}
                   </select>
@@ -398,21 +403,28 @@ export default function StandardWorkflow({
           </div>
           <div className="wf-standard-submit">
             <div className="wf-standard-cost">
-              <span>Стоимость генерации</span>
+              <span>{t('Стоимость генерации')}</span>
               <strong>
-                {currentQuote?.adminTest
-                  ? `${currentQuote.baseCredits == null ? 'Тест ADMIN' : `${currentQuote.baseCredits} кр.`} · списание 0`
-                  : currentQuote?.status === 'configured'
-                    ? `${currentQuote.credits} кр.`
-                    : currentQuote?.status === 'unconfigured'
-                      ? 'Не настроена'
-                      : '—'}
+                {t(
+                  currentQuote?.adminTest
+                    ? t('{{v0}} · списание 0', {
+                        v0:
+                          currentQuote.baseCredits == null
+                            ? t('Тест ADMIN')
+                            : t('{{v0}} кр.', { v0: currentQuote.baseCredits }),
+                      })
+                    : currentQuote?.status === 'configured'
+                      ? `${currentQuote.credits} кр.`
+                      : currentQuote?.status === 'unconfigured'
+                        ? 'Не настроена'
+                        : '—',
+                )}
               </strong>
             </div>
             <div className="wf-standard-actions">
               <button className="glass-button primary wf-standard-generate" disabled={!canGenerate}>
                 <Sparkles size={16} />
-                <span>{uploading || generation.submitting ? 'Отправляем…' : 'Generate'}</span>
+                <span>{t(uploading || generation.submitting ? 'Отправляем…' : 'Generate')}</span>
                 <ArrowUpRight size={16} />
               </button>
               <button
@@ -423,34 +435,36 @@ export default function StandardWorkflow({
                 onClick={() => navigateMobile('results')}
               >
                 <FrameTracing />
-                <span>Result</span>
+                <span>{t('Result')}</span>
                 <ArrowUpRight size={14} aria-hidden="true" />
               </button>
             </div>
             {!user.isAdmin && (
               <p className="wf-composer-note">
-                Генерация доступна только администратору. Можно подготовить промпт и параметры.
+                {t(
+                  'Генерация доступна только администратору. Можно подготовить промпт и параметры.',
+                )}
               </p>
             )}
             {user.isAdmin && currentQuote?.status === 'unconfigured' && (
               <p className="wf-composer-note">
-                Генерация станет доступна после настройки стоимости.
+                {t('Генерация станет доступна после настройки стоимости.')}
               </p>
             )}
             {model && !model.available && (
-              <p className="wf-composer-note">Сервис генерации пока не подключён.</p>
+              <p className="wf-composer-note">{t('Сервис генерации пока не подключён.')}</p>
             )}
             {user.isAdmin && currentQuote && !currentQuote.storageAvailable && (
-              <p className="wf-composer-note">Хранилище результатов R2 не подключено.</p>
+              <p className="wf-composer-note">{t('Хранилище результатов R2 не подключено.')}</p>
             )}
             {user.isAdmin &&
               currentQuote?.status === 'configured' &&
               !currentQuote.sufficientBalance && (
-                <p className="wf-composer-note">Недостаточно кредитов.</p>
+                <p className="wf-composer-note">{t('Недостаточно кредитов.')}</p>
               )}
             {generation.pendingRequest && (
               <div className="wf-composer-pending" role="status">
-                <span>Ответ не подтверждён.</span>
+                <span>{t('Ответ не подтверждён.')}</span>
                 <button
                   type="button"
                   className="text-button"
@@ -460,38 +474,40 @@ export default function StandardWorkflow({
                     if (result) setNotice('Запрос подтверждён.');
                   }}
                 >
-                  Повторить проверку
+                  {t('Повторить проверку')}
                 </button>
               </div>
             )}
             {(error || modelError || quoteError || generation.error) && (
               <p className="wf-composer-error" role="alert">
-                {error || modelError || quoteError || generation.error}
+                {t(error || modelError || quoteError || generation.error)}
               </p>
             )}
             {notice && (
               <p className="wf-composer-note" role="status">
-                {notice}
+                {t(notice)}
               </p>
             )}
             <small className="wf-standard-balance">
-              {user.isAdmin
-                ? 'ADMIN · внутренние кредиты не списываются. Запрос оплачивается в Higgsfield.'
-                : `Доступно ${user.generationCredits ?? 0} кредитов`}
+              {t(
+                user.isAdmin
+                  ? 'ADMIN · внутренние кредиты не списываются. Запрос оплачивается в Higgsfield.'
+                  : `Доступно ${user.generationCredits ?? 0} кредитов`,
+              )}
             </small>
           </div>
         </form>
         <div
           id={resultsId}
           className="wf-standard-results"
-          aria-label="Generation Workspace"
+          aria-label={t('Generation Workspace')}
           inert={isMobile && mobileScreen === 'create'}
           aria-hidden={isMobile && mobileScreen === 'create' ? true : undefined}
         >
           <div className="wf-generation-workspace wf-generation-results">
-            {generation.loading && <p role="status">Загружаем историю…</p>}
+            {generation.loading && <p role="status">{t('Загружаем историю…')}</p>}
             {!generation.loading && !generation.items.length && (
-              <span>Здесь появятся твои идеи</span>
+              <span>{t('Здесь появятся твои идеи')}</span>
             )}
             {generation.items
               .slice()
@@ -507,7 +523,7 @@ export default function StandardWorkflow({
                     <strong>
                       {models.find((entry) => entry.id === item.model)?.name || item.model}
                     </strong>
-                    <span role="status">{generationLabels[item.status] || item.status}</span>
+                    <span role="status">{t(generationLabels[item.status] || item.status)}</span>
                   </div>
                   {isGenerationActive(item.status) && <GenerationPending />}
                   {item.status === 'completed' &&
@@ -526,12 +542,12 @@ export default function StandardWorkflow({
                   <p className="wf-generation-result-prompt">{item.prompt}</p>
                   {item.errorMessage && (
                     <p className="wf-composer-error" role="alert">
-                      {item.errorMessage}
+                      {t(item.errorMessage)}
                     </p>
                   )}
                   {item.requiresReview && (
                     <p className="wf-composer-note">
-                      Проверьте задачу в Higgsfield перед новым запуском.
+                      {t('Проверьте задачу в Higgsfield перед новым запуском.')}
                     </p>
                   )}
                 </article>
@@ -541,7 +557,7 @@ export default function StandardWorkflow({
             ref={backButton}
             type="button"
             className="wf-standard-back"
-            aria-label="Вернуться к созданию"
+            aria-label={t('Вернуться к созданию')}
             onClick={() => navigateMobile('create')}
           >
             <ArrowLeft size={18} strokeWidth={1.25} aria-hidden="true" />

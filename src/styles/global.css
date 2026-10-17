@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 :root {
   font-family: Inter, Arial, sans-serif;
-  color: #fff;
-  background: #050505;
+  color: var(--text-ffffff);
+  background: var(--surface-050505);
   font-synthesis: none;
-  --bg: #050505;
-  --surface: #101010;
-  --card: #151515;
-  --muted: #999;
-  --line: rgba(255, 255, 255, 0.12);
+  --bg: var(--surface-050505);
+  --surface: var(--surface-101010);
+  --card: var(--surface-151515);
+  --muted: var(--surface-999999);
+  --line: var(--wash-ffffff-120);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   color-scheme: dark;
@@ -67,12 +67,12 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--border-ffffff);
   outline-offset: 5px;
 }
 ::selection {
-  background: #fff;
-  color: #050505;
+  background: var(--action-ffffff);
+  color: var(--text-050505);
 }
 img,
 video {

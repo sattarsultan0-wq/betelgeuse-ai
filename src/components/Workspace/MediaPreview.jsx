@@ -1,8 +1,10 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useRef, useState } from 'react';
 import { Film, Image as ImageIcon, Play } from 'lucide-react';
 
 // Only intersecting cards attach a video source; playback is explicit and muted.
 export default function MediaPreview({ item, onOpen }) {
+  const { t } = useI18n();
   const ref = useRef(null),
     [visible, setVisible] = useState(false);
   const image = item.kind === 'image' || item.resultImageUrl || item.resultImageUrls?.length;
@@ -19,10 +21,12 @@ export default function MediaPreview({ item, onOpen }) {
       ref={ref}
       className="wf-media-preview"
       onClick={() => onOpen(item)}
-      aria-label={`Открыть материал: ${item.prompt || item.name || 'Результат генерации'}`}
+      aria-label={t('Открыть материал: {{v0}}', {
+        v0: item.prompt || item.name || t('Результат генерации'),
+      })}
     >
       {image && src ? (
-        <img src={src} alt={item.name || 'Результат генерации'} loading="lazy" />
+        <img src={src} alt={item.name || t('Результат генерации')} loading="lazy" />
       ) : src ? (
         <>
           <video

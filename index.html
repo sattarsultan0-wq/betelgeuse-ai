@@ -4,6 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#050505" />
+    <script>
+      // Restore preferences before CSS and React load, including direct workspace links.
+      (() => {
+        let theme = 'dark',
+          language = 'ru';
+        try {
+          theme = localStorage.getItem('betelgeuse:theme') === 'light' ? 'light' : 'dark';
+          const saved = localStorage.getItem('betelgeuse:language');
+          if (['ru', 'en', 'kk'].includes(saved)) language = saved;
+        } catch {}
+        const workspace = ['/workflow', '/trends', '/library', '/billing'].includes(
+          location.pathname.replace(/\/$/, ''),
+        );
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.workspace = String(workspace);
+        document.documentElement.lang = language;
+        document.querySelector('meta[name="theme-color"]').content =
+          workspace && theme === 'light' ? '#f2f4f8' : '#050505';
+      })();
+    </script>
     <meta
       name="description"
       content="Betelgeuse — пространство для создания AI-видео. Превращай идеи в движение."

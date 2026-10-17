@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n/index';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Film, LoaderCircle } from 'lucide-react';
@@ -8,6 +9,7 @@ import MediaPreview from '../components/Workspace/MediaPreview';
 import MaterialDialog from '../components/Workspace/MaterialDialog';
 
 export default function Library() {
+  const { t, locale } = useI18n();
   const { user } = useAuth();
   const [tab, setTab] = useState('video'),
     [items, setItems] = useState([]),
@@ -60,14 +62,15 @@ export default function Library() {
   return (
     <section className="wf-page wf-library">
       <header className="wf-page-heading">
-        <span className="eyebrow">СОХРАНЁННЫЕ МОМЕНТЫ</span>
+        <span className="eyebrow">{t('СОХРАНЁННЫЕ МОМЕНТЫ')}</span>
         <h1>
-          Твоя библиотека<span className="dim">.</span>
+          {t('Твоя библиотека')}
+          <span className="dim">.</span>
         </h1>
-        <p>Генерации сохраняются автоматически. Исходные фотографии — рядом.</p>
+        <p>{t('Генерации сохраняются автоматически. Исходные фотографии — рядом.')}</p>
       </header>
       <div className="wf-library-toolbar">
-        <div className="wf-library-tabs" role="group" aria-label="Тип материалов">
+        <div className="wf-library-tabs" role="group" aria-label={t('Тип материалов')}>
           {[
             ['video', 'Генерации'],
             ['image', 'Исходные изображения'],
@@ -81,40 +84,44 @@ export default function Library() {
                 setPage(1);
               }}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
         <Link className="glass-button compact" to="/workflow">
-          Создать <ArrowUpRight size={16} />
+          {t('Создать ')}
+          <ArrowUpRight size={16} />
         </Link>
       </div>
       {error && (
         <div className="wf-library-error">
           <p className="wf-error" role="alert">
-            {error}
+            {t(error)}
           </p>
           <button className="glass-button compact" onClick={() => setReload((value) => value + 1)}>
-            Повторить загрузку
+            {t('Повторить загрузку')}
           </button>
         </div>
       )}
       {fetching ? (
         <div className="wf-page-loading">
           <LoaderCircle className="spin" />
-          <p>Загружаем материалы…</p>
+          <p>{t('Загружаем материалы…')}</p>
         </div>
       ) : !items.length && !error ? (
         <div className="wf-empty-library">
           <Film size={34} />
-          <h2>Здесь начнётся твоя история</h2>
+          <h2>{t('Здесь начнётся твоя история')}</h2>
           <p>
-            {tab === 'image'
-              ? 'Загруженные исходные изображения появятся здесь.'
-              : 'Создай первое видео — оно автоматически появится в библиотеке.'}
+            {t(
+              tab === 'image'
+                ? 'Загруженные исходные изображения появятся здесь.'
+                : 'Создай первое видео — оно автоматически появится в библиотеке.',
+            )}
           </p>
           <Link className="glass-button primary" to="/workflow">
-            Начать создавать <ArrowUpRight size={17} />
+            {t('Начать создавать ')}
+            <ArrowUpRight size={17} />
           </Link>
         </div>
       ) : (
@@ -129,18 +136,18 @@ export default function Library() {
               ) : (
                 <div className="wf-library-placeholder">
                   <Film size={27} />
-                  {generationLabels[item.status]}
+                  {t(generationLabels[item.status])}
                 </div>
               )}
               <h2>{item.prompt || item.name}</h2>
               <div className="wf-library-card-meta">
                 <small>
-                  {new Date(item.createdAt).toLocaleDateString('ru-RU')}
-                  {item.duration ? ` · ${item.duration} сек` : ''}
+                  {t(new Date(item.createdAt).toLocaleDateString(locale))}
+                  {t(item.duration ? ` · ${item.duration} сек` : '')}
                 </small>
-                <small>{item.kind === 'image' ? 'Image' : generationLabels[item.status]}</small>
+                <small>{t(item.kind === 'image' ? 'Image' : generationLabels[item.status])}</small>
               </div>
-              {item.errorMessage && <p className="wf-error">{item.errorMessage}</p>}
+              {item.errorMessage && <p className="wf-error">{t(item.errorMessage)}</p>}
             </article>
           ))}
         </div>
@@ -152,17 +159,17 @@ export default function Library() {
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
           >
-            Назад
+            {t('Назад')}
           </button>
           <span>
-            {page} / {Math.ceil(total / 20)}
+            {t(page)} / {t(Math.ceil(total / 20))}
           </span>
           <button
             className="glass-button compact"
             disabled={page * 20 >= total}
             onClick={() => setPage(page + 1)}
           >
-            Далее
+            {t('Далее')}
           </button>
         </div>
       )}

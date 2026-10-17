@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n/index';
 import { Link } from 'react-router-dom';
 const content = {
   privacy: {
@@ -27,16 +28,17 @@ const content = {
   },
 };
 export default function Information({ kind }) {
+  const { t } = useI18n();
   const page = content[kind];
   return (
     <section className="subpage container information">
       <span className="eyebrow">BETELGEUSE / MVP</span>
-      <h1>{page.title}</h1>
+      <h1>{t(page.title)}</h1>
       {page.paragraphs.map((p) => (
-        <p key={p}>{p}</p>
+        <p key={p}>{t(p)}</p>
       ))}
       <Link className="glass-button" to="/">
-        На главную
+        {t('На главную')}
       </Link>
     </section>
   );

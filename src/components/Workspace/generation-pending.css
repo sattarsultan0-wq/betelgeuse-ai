@@ -21,7 +21,7 @@
   place-content: center;
   justify-items: center;
   gap: 16px;
-  color: #fff;
+  color: var(--text-ffffff);
 }
 .wf-neural-pulse {
   display: flex;
@@ -42,7 +42,7 @@
   animation-delay: var(--wf-pulse-delay);
 }
 .wf-generating-label {
-  color: #fff;
+  color: var(--text-ffffff);
   font-size: 10px;
   font-weight: 400;
   line-height: 1.4;
@@ -62,7 +62,7 @@
   aspect-ratio: 16 / 9;
   max-height: 60dvh;
   border-radius: 10px;
-  background: #050505;
+  background: var(--surface-050505);
 }
 .wf-material-dialog .wf-frame-tracing {
   --wf-frame-radius: 19.5px;

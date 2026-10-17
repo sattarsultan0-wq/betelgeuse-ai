@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { ArrowUpRight, Play, Sparkles } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { useAuth } from '../../context/AuthContext';
@@ -7,6 +8,7 @@ import { Star } from '../UI/Brand';
 import './CreateCTA.css';
 
 export default function CreateCTA() {
+  const { t } = useI18n();
   const { requestAuth, loading } = useAuth();
   const reduced = useReducedMotion();
   const video = useInlineVideo(workflowMedia.video, { group: 'preview', autoplay: !reduced });
@@ -18,25 +20,27 @@ export default function CreateCTA() {
     >
       <div className="home-create-copy">
         <h2 id="home-create-title">
-          Воплощай идеи
+          {t('Воплощай идеи')}
           <br />
-          <span className="dim">в реальность</span>
+          <span className="dim">{t('в реальность')}</span>
         </h2>
         <p>
-          Текст становится сценой. Фотография оживает. Собирай идеи, исследуй возможности AI и
-          создавай свою вселенную в одном рабочем пространстве.
+          {t(
+            'Текст становится сценой. Фотография оживает. Собирай идеи, исследуй возможности AI и создавай свою вселенную в одном рабочем пространстве.',
+          )}
         </p>
         <button
           className="glass-button primary home-create-button"
           disabled={loading}
           onClick={() => requestAuth('login', '/workflow')}
         >
-          Начать создавать <ArrowUpRight size={20} />
+          {t('Начать создавать ')}
+          <ArrowUpRight size={20} />
         </button>
       </div>
       <div className="home-create-preview">
         <div className="home-create-preview-top">
-          <Star /> BETELGEUSE / CREATIVE WORKSPACE <span>01 — ∞</span>
+          <Star /> {t('BETELGEUSE / CREATIVE WORKSPACE')} <span>01 — ∞</span>
         </div>
         <div className="home-create-video">
           {workflowMedia.video && !video.failed ? (
@@ -49,11 +53,12 @@ export default function CreateCTA() {
                 loop
                 playsInline
                 preload="none"
-                aria-label="Демонстрация рабочего пространства Betelgeuse"
+                aria-label={t('Демонстрация рабочего пространства Betelgeuse')}
               />
               {(video.blocked || reduced) && (
                 <button className="glass-button compact home-create-play" onClick={video.play}>
-                  <Play size={15} /> Смотреть демо
+                  <Play size={15} />
+                  {t(' Смотреть демо')}
                 </button>
               )}
             </>
@@ -62,13 +67,13 @@ export default function CreateCTA() {
               <div className="home-create-orbit">
                 <Sparkles size={36} />
               </div>
-              <span>ТВОЯ СЛЕДУЮЩАЯ БОЛЬШАЯ ИДЕЯ</span>
-              <small>Место для демонстрационного видео</small>
+              <span>{t('ТВОЯ СЛЕДУЮЩАЯ БОЛЬШАЯ ИДЕЯ')}</span>
+              <small>{t('Место для демонстрационного видео')}</small>
             </div>
           )}
         </div>
         <div className="home-create-preview-bottom">
-          <span>Из воображения — в реальность</span>
+          <span>{t('Из воображения — в реальность')}</span>
           <span>✦</span>
         </div>
       </div>

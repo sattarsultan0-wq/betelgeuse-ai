@@ -1,9 +1,11 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import ModelIdentity from './ModelIdentity';
 
 export default function ModelCarousel({ models, onSelect, loading, error }) {
+  const { t } = useI18n();
   const strip = useRef(null),
     drag = useRef(null);
   const [tooltip, setTooltip] = useState(null);
@@ -51,12 +53,12 @@ export default function ModelCarousel({ models, onSelect, loading, error }) {
         ? 'В каталоге нет активных моделей.'
         : 'Каталог моделей пуст.';
   return (
-    <div className="wf-pro-models-popover" role="dialog" aria-label="Выбор модели">
+    <div className="wf-pro-models-popover" role="dialog" aria-label={t('Выбор модели')}>
       <div
         ref={strip}
         className="wf-pro-model-strip"
         role="group"
-        aria-label="Каталог моделей"
+        aria-label={t('Каталог моделей')}
         data-has-models={catalog.length > 0}
         onScroll={() => {
           if (drag.current?.active) drag.current.moved = true;
@@ -138,7 +140,7 @@ export default function ModelCarousel({ models, onSelect, loading, error }) {
         ))}
         {!catalog.length && (
           <p className="wf-pro-catalog-note" role={error ? 'alert' : 'status'}>
-            {message}
+            {t(message)}
           </p>
         )}
       </div>

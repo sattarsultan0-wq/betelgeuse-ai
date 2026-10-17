@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useRef, useState } from 'react';
 import { Check, FileText, Image as ImageIcon, Pencil, Video, X } from 'lucide-react';
 import { apiUrl } from '../../services/api';
@@ -6,6 +7,7 @@ import { modeLabels, modelOptions } from '../../services/workflow-options';
 import ModelIdentity from './ModelIdentity';
 
 function NodeMedia({ node }) {
+  const { t } = useI18n();
   const [src, setSrc] = useState(''),
     [error, setError] = useState('');
   const media = useRef(null);
@@ -50,8 +52,8 @@ function NodeMedia({ node }) {
       document.removeEventListener('visibilitychange', pauseHidden);
     };
   }, [src]);
-  if (error) return <p className="wf-editor-note">{error}</p>;
-  if (!src) return <div className="wf-editor-media-placeholder">Загрузка превью…</div>;
+  if (error) return <p className="wf-editor-note">{t(error)}</p>;
+  if (!src) return <div className="wf-editor-media-placeholder">{t('Загрузка превью…')}</div>;
   return node.type === 'image' ? (
     <img
       className="wf-editor-media"
@@ -74,7 +76,8 @@ function NodeMedia({ node }) {
 }
 
 function ModelControls({ node, model, onChange }) {
-  if (!model) return <p className="wf-editor-note">Модель недоступна в текущем каталоге.</p>;
+  const { t } = useI18n();
+  if (!model) return <p className="wf-editor-note">{t('Модель недоступна в текущем каталоге.')}</p>;
   const configuration = node.configuration;
   const mode = model.modes[configuration.mode] ? configuration.mode : Object.keys(model.modes)[0];
   const caps = model.modes[mode];
@@ -83,9 +86,9 @@ function ModelControls({ node, model, onChange }) {
   return (
     <div className="wf-editor-model-controls" data-canvas-interactive>
       <label className="wf-editor-field wf-editor-field-wide">
-        Режим
+        {t('Режим')}
         <select
-          aria-label="Режим модели"
+          aria-label={t('Режим модели')}
           value={mode}
           onChange={(event) =>
             onChange(node.id, {
@@ -98,7 +101,7 @@ function ModelControls({ node, model, onChange }) {
         >
           {Object.keys(model.modes).map((key) => (
             <option key={key} value={key}>
-              {modeLabels[key] || key}
+              {t(modeLabels[key] || key)}
             </option>
           ))}
         </select>
@@ -111,9 +114,9 @@ function ModelControls({ node, model, onChange }) {
         .filter(([, values]) => values?.length)
         .map(([key, values, label]) => (
           <label className="wf-editor-field" key={key}>
-            {label}
+            {t(label)}
             <select
-              aria-label={label}
+              aria-label={t(label)}
               value={options[key]}
               onChange={(event) =>
                 change({
@@ -123,11 +126,13 @@ function ModelControls({ node, model, onChange }) {
             >
               {values.map((value) => (
                 <option key={value} value={value}>
-                  {key === 'duration'
-                    ? `${value} сек`
-                    : value === 'source'
-                      ? 'По изображению'
-                      : value}
+                  {t(
+                    key === 'duration'
+                      ? `${value} сек`
+                      : value === 'source'
+                        ? 'По изображению'
+                        : value,
+                  )}
                 </option>
               ))}
             </select>
@@ -135,9 +140,9 @@ function ModelControls({ node, model, onChange }) {
         ))}
       {Object.entries(caps?.parameters || {}).map(([key, rule]) => (
         <label className="wf-editor-field" key={key}>
-          {rule.label}
+          {t(rule.label)}
           <select
-            aria-label={rule.label}
+            aria-label={t(rule.label)}
             value={String(options.parameters[key])}
             onChange={(event) =>
               change({
@@ -151,7 +156,7 @@ function ModelControls({ node, model, onChange }) {
           >
             {(rule.type === 'boolean' ? [true, false] : rule.values).map((value) => (
               <option key={String(value)} value={String(value)}>
-                {typeof value === 'boolean' ? (value ? 'Включён' : 'Выключен') : value}
+                {t(typeof value === 'boolean' ? (value ? 'Включён' : 'Выключен') : value)}
               </option>
             ))}
           </select>
@@ -171,6 +176,7 @@ export default function WorkflowNode({
   onDelete,
   onRetryUpload,
 }) {
+  const { t } = useI18n();
   const [editing, setEditing] = useState(false),
     [draft, setDraft] = useState(node.data.text || '');
   function finishEditing() {
@@ -195,7 +201,7 @@ export default function WorkflowNode({
         data-node-handle={node.id}
         role="button"
         tabIndex={0}
-        aria-label={`Переместить узел ${title}`}
+        aria-label={t('Переместить узел {{v0}}', { v0: t(title) })}
         onKeyDown={(event) => {
           if (event.target !== event.currentTarget) return;
           const offset = {
@@ -216,14 +222,14 @@ export default function WorkflowNode({
           ) : (
             <Icon size={15} />
           )}
-          <strong>{title}</strong>
+          <strong>{t(title)}</strong>
         </span>
         <div className="wf-editor-node-actions">
           {node.type === 'prompt' && (
             <button
               type="button"
               className="icon-button"
-              aria-label={editing ? 'Готово' : 'Редактировать промпт'}
+              aria-label={t(editing ? 'Готово' : 'Редактировать промпт')}
               disabled={editing && !draft.trim()}
               onClick={() => {
                 if (editing) finishEditing();
@@ -239,7 +245,7 @@ export default function WorkflowNode({
           <button
             type="button"
             className="icon-button"
-            aria-label={`Удалить узел ${title}`}
+            aria-label={t('Удалить узел {{v0}}', { v0: t(title) })}
             onClick={() => onDelete(node.id)}
           >
             <X size={14} />
@@ -251,7 +257,7 @@ export default function WorkflowNode({
           {editing ? (
             <textarea
               autoFocus
-              aria-label="Текст Prompt Node"
+              aria-label={t('Текст Prompt Node')}
               value={draft}
               maxLength={2000}
               rows={5}
@@ -277,13 +283,16 @@ export default function WorkflowNode({
           <NodeMedia node={node} />
           <div className="wf-editor-file-meta">
             <span title={node.data.fileName}>{node.data.fileName}</span>
-            <small>{(node.data.size / 1024 / 1024).toFixed(1)} МБ</small>
+            <small>
+              {t((node.data.size / 1024 / 1024).toFixed(1))}
+              {t(' МБ')}
+            </small>
           </div>
           {node.data.uploadError && (
             <div className="wf-editor-upload-error" data-canvas-interactive>
-              <p>{node.data.uploadError}</p>
+              <p>{t(node.data.uploadError)}</p>
               <button type="button" onClick={() => onRetryUpload(node)}>
-                Повторить загрузку
+                {t('Повторить загрузку')}
               </button>
             </div>
           )}

@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -40,6 +41,7 @@ function GenerationNode({
   onMove,
   onRemove,
 }) {
+  const { t, locale } = useI18n();
   const [downloadError, setDownloadError] = useState(''),
     [downloading, setDownloading] = useState(false);
   const active = isGenerationActive(item.status);
@@ -56,7 +58,7 @@ function GenerationNode({
         data-node-handle={item.id}
         tabIndex={0}
         role="button"
-        aria-label={`Переместить узел: ${item.prompt}. Используй стрелки.`}
+        aria-label={t('Переместить узел: {{v0}}. Используй стрелки.', { v0: item.prompt })}
         onKeyDown={(event) => {
           const directions = {
             ArrowLeft: [-20, 0],
@@ -77,20 +79,22 @@ function GenerationNode({
       >
         <span>
           <Film size={14} />
-          {item.model === 'higgsfield'
-            ? 'Seedance'
-            : item.model === 'kling'
-              ? 'Kling AI'
-              : item.model}
+          {t(
+            item.model === 'higgsfield'
+              ? 'Seedance'
+              : item.model === 'kling'
+                ? 'Kling AI'
+                : item.model,
+          )}
         </span>
         <small className={`wf-node-status wf-node-status-${item.status}`}>
-          {generationLabels[item.status] || item.status}
+          {t(generationLabels[item.status] || item.status)}
         </small>
         {onRemove && (
           <button
             type="button"
             className="icon-button"
-            aria-label="Убрать генерацию с доски"
+            aria-label={t('Убрать генерацию с доски')}
             onClick={() => onRemove(item.id)}
           >
             <X size={14} />
@@ -107,12 +111,12 @@ function GenerationNode({
           ) : item.status === 'failed' ? (
             <>
               <AlertCircle size={26} />
-              <p>Генерация не завершена</p>
+              <p>{t('Генерация не завершена')}</p>
             </>
           ) : (
             <>
               <Film size={26} />
-              <p>Материал ещё не доступен</p>
+              <p>{t('Материал ещё не доступен')}</p>
             </>
           )}
         </div>
@@ -120,33 +124,35 @@ function GenerationNode({
       <p className="wf-node-prompt">{item.prompt}</p>
       <div className="wf-node-meta">
         <span>
-          {item.duration ? `${item.duration} сек` : 'Image'} ·{' '}
-          {item.aspectRatio === 'source' ? 'По изображению' : item.aspectRatio}
+          {t(item.duration ? `${item.duration} сек` : 'Image')} ·{' '}
+          {t(item.aspectRatio === 'source' ? 'По изображению' : item.aspectRatio)}
         </span>
-        <span>{new Date(item.createdAt).toLocaleDateString('ru-RU')}</span>
+        <span>{t(new Date(item.createdAt).toLocaleDateString(locale))}</span>
       </div>
       {(item.errorMessage || downloadError) && (
         <p className="wf-node-error" role="alert">
-          {downloadError || item.errorMessage}
+          {t(downloadError || item.errorMessage)}
         </p>
       )}
       {item.requiresReview && (
         <p className="wf-node-error">
-          Запрос отправлен провайдеру. Требуется проверка статуса; автоматический возврат кредитов
-          не подтверждён.
+          {t(
+            'Запрос отправлен провайдеру. Требуется проверка статуса; автоматический возврат кредитов не подтверждён.',
+          )}
         </p>
       )}
       {item.status === 'completed' && (
         <div className="wf-node-actions">
-          <button onClick={() => onDerive(item)} title="Добавить промпт на доску">
-            Добавить промпт <ArrowUpRight size={13} />
+          <button onClick={() => onDerive(item)} title={t('Добавить промпт на доску')}>
+            {t('Добавить промпт ')}
+            <ArrowUpRight size={13} />
           </button>
-          <Link to="/library" title="Генерация автоматически сохранена в истории">
-            В библиотеке
+          <Link to="/library" title={t('Генерация автоматически сохранена в истории')}>
+            {t('В библиотеке')}
           </Link>
           {item.resultVideoUrl && (
             <button
-              aria-label="Скачать результат"
+              aria-label={t('Скачать результат')}
               disabled={downloading}
               onClick={async () => {
                 setDownloading(true);
@@ -187,6 +193,7 @@ export default function InteractiveCanvas({
   initialViewport = { x: 0, y: 0, zoom: 1 },
   onViewportChange,
 }) {
+  const { t, locale } = useI18n();
   const canvas = useRef(null),
     lastCanvasBounds = useRef(null),
     pointers = useRef(new Map()),
@@ -394,7 +401,7 @@ export default function InteractiveCanvas({
       onPointerMove={move}
       onPointerUp={up}
       onPointerCancel={up}
-      aria-label="Интерактивная рабочая доска"
+      aria-label={t('Интерактивная рабочая доска')}
     >
       <div
         className="wf-canvas-grid"
@@ -437,7 +444,7 @@ export default function InteractiveCanvas({
       {loading ? (
         <div className="wf-canvas-empty">
           <LoaderCircle className="spin" size={28} />
-          <p>Загружаем твоё пространство…</p>
+          <p>{t('Загружаем твоё пространство…')}</p>
         </div>
       ) : (
         !items.length &&
@@ -445,14 +452,14 @@ export default function InteractiveCanvas({
           <div className="wf-canvas-empty">
             <span className="wf-empty-symbol">✦</span>
             <h2>
-              Дай воображению
+              {t('Дай воображению')}
               <br />
-              <span className="dim">пространство.</span>
+              <span className="dim">{t('пространство.')}</span>
             </h2>
             <p>
-              Добавь промпт, модель или файл.
+              {t('Добавь промпт, модель или файл.')}
               <br />
-              Собери свою идею на доске.
+              {t('Собери свою идею на доске.')}
             </p>
           </div>
         )
@@ -460,32 +467,32 @@ export default function InteractiveCanvas({
       {error && (
         <p className="wf-canvas-error" role="alert">
           <AlertCircle size={15} />
-          {error}
+          {t(error)}
         </p>
       )}
-      <div className="wf-canvas-tools" role="group" aria-label="Масштаб доски">
+      <div className="wf-canvas-tools" role="group" aria-label={t('Масштаб доски')}>
         <button
-          aria-label="Уменьшить масштаб"
+          aria-label={t('Уменьшить масштаб')}
           onClick={() =>
             zoomAt(0.85, { x: canvas.current.clientWidth / 2, y: canvas.current.clientHeight / 3 })
           }
         >
           <Minus size={16} />
         </button>
-        <span>{Math.round(viewport.zoom * 100)}%</span>
+        <span>{t(Math.round(viewport.zoom * 100))}%</span>
         <button
-          aria-label="Увеличить масштаб"
+          aria-label={t('Увеличить масштаб')}
           onClick={() =>
             zoomAt(1.15, { x: canvas.current.clientWidth / 2, y: canvas.current.clientHeight / 3 })
           }
         >
           <Plus size={16} />
         </button>
-        <button aria-label="Показать все узлы" onClick={fit}>
+        <button aria-label={t('Показать все узлы')} onClick={fit}>
           <Focus size={16} />
         </button>
       </div>
-      <span className="wf-canvas-hint">Перетаскивай доску · Масштабируй колёсиком</span>
+      <span className="wf-canvas-hint">{t('Перетаскивай доску · Масштабируй колёсиком')}</span>
     </div>
   );
 }

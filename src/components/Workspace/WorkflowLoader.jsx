@@ -1,12 +1,14 @@
+import { useI18n } from '../../i18n/index';
 import './workflow-loader.css';
 
 export default function WorkflowLoader({ exiting = false }) {
+  const { t } = useI18n();
   return (
     <div
       className={`wf-loader ${exiting ? 'wf-loader-exiting' : ''}`}
       role="status"
       aria-live="polite"
-      aria-label="Загрузка рабочего пространства Betelgeuse"
+      aria-label={t('Загрузка рабочего пространства Betelgeuse')}
     >
       <div className="wf-loader-content">
         <span className="wf-loader-wordmark">BETELGEUSE</span>
@@ -15,7 +17,7 @@ export default function WorkflowLoader({ exiting = false }) {
           <span />
           <span />
         </div>
-        <span className="sr-only">Загрузка рабочего пространства…</span>
+        <span className="sr-only">{t('Загрузка рабочего пространства…')}</span>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUpRight,
@@ -12,12 +13,12 @@ import {
 import { workspaceModels } from '../../assets/aiModels';
 
 const modeNames = { TEXT_TO_VIDEO: 'Текст → Видео', IMAGE_TO_VIDEO: 'Фото → Видео' };
-function modelDescription(item) {
-  if (item.provider) return `${item.type} · провайдер Kling / Seedance`;
+function modelDescription(item, t) {
+  if (item.provider) return t('{{v0}} · провайдер Kling / Seedance', { v0: t(item.type) });
   const costs = Object.values(item.api?.creditCosts || {}).filter(
     (value) => Number.isInteger(value) && value >= 0,
   );
-  return `${item.type} · ${costs.length ? `от ${Math.min(...costs)} кр.` : 'Стоимость не настроена'}`;
+  return `${t(item.type)} · ${costs.length ? t('от {{v0}} кр.', { v0: Math.min(...costs) }) : t('Стоимость не настроена')}`;
 }
 
 export default function PromptComposer({
@@ -34,6 +35,7 @@ export default function PromptComposer({
   onRetry,
   loading,
 }) {
+  const { t } = useI18n();
   const catalog = useMemo(() => workspaceModels(apiModels), [apiModels]);
   const [modelId, setModelId] = useState('kling'),
     [mode, setMode] = useState('TEXT_TO_VIDEO'),
@@ -172,30 +174,33 @@ export default function PromptComposer({
       {source && (
         <div className="wf-composer-source">
           <Sparkles size={13} />
-          <span>Продолжение идеи · связь с предыдущим узлом</span>
+          <span>{t('Продолжение идеи · связь с предыдущим узлом')}</span>
           <button
             type="button"
             className="icon-button"
-            aria-label="Убрать связь с предыдущим узлом"
+            aria-label={t('Убрать связь с предыдущим узлом')}
             onClick={onClearSource}
             disabled={locked}
           >
             <X size={14} />
           </button>
-          <small>Переносится промпт. Исходное видео не отправляется.</small>
+          <small>{t('Переносится промпт. Исходное видео не отправляется.')}</small>
         </div>
       )}
       {file && (
         <div className="wf-composer-attachment">
-          <img src={preview} alt="Исходное изображение" />
+          <img src={preview} alt={t('Исходное изображение')} />
           <span>
             {file.name}
-            <small>{(file.size / 1024 / 1024).toFixed(1)} МБ · исходное фото</small>
+            <small>
+              {t((file.size / 1024 / 1024).toFixed(1))}
+              {t(' МБ · исходное фото')}
+            </small>
           </span>
           <button
             type="button"
             className="icon-button"
-            aria-label="Удалить изображение"
+            aria-label={t('Удалить изображение')}
             disabled={locked}
             onClick={() => {
               setFile(null);
@@ -208,14 +213,14 @@ export default function PromptComposer({
         </div>
       )}
       <label className="sr-only" htmlFor="wf-prompt">
-        Промпт
+        {t('Промпт')}
       </label>
       <textarea
         id="wf-prompt"
         ref={textarea}
         value={prompt}
         onChange={(event) => setPrompt(event.target.value)}
-        placeholder="Опиши, что хочешь создать..."
+        placeholder={t('Опиши, что хочешь создать...')}
         maxLength={2000}
         disabled={locked}
         rows={2}
@@ -235,17 +240,17 @@ export default function PromptComposer({
             disabled={locked}
             onClick={() => setMenu(!menu)}
           >
-            <span className="wf-model-mark">{model.mark}</span>
+            <span className="wf-model-mark">{t(model.mark)}</span>
             <span>
               {model.name}
               <small>
-                {model.type} · {cost == null ? 'Стоимость не настроена' : `${cost} кр.`}
+                {t(model.type)} · {t(cost == null ? 'Стоимость не настроена' : `${cost} кр.`)}
               </small>
             </span>
             <ChevronDown size={14} />
           </button>
           {menu && (
-            <div className="wf-model-menu" role="group" aria-label="AI-модели">
+            <div className="wf-model-menu" role="group" aria-label={t('AI-модели')}>
               {catalog.map((item) => (
                 <button
                   type="button"
@@ -259,17 +264,19 @@ export default function PromptComposer({
                     setError('');
                   }}
                 >
-                  <span className="wf-model-mark">{item.mark}</span>
+                  <span className="wf-model-mark">{t(item.mark)}</span>
                   <span>
                     {item.name}
-                    <small>{modelDescription(item)}</small>
+                    <small>{modelDescription(item, t)}</small>
                   </span>
                   <small>
-                    {item.api?.available
-                      ? 'Доступна'
-                      : item.api?.enabled
-                        ? 'Не подключена'
-                        : 'Скоро'}
+                    {t(
+                      item.api?.available
+                        ? 'Доступна'
+                        : item.api?.enabled
+                          ? 'Не подключена'
+                          : 'Скоро',
+                    )}
                   </small>
                 </button>
               ))}
@@ -280,8 +287,8 @@ export default function PromptComposer({
           <button
             type="button"
             className="icon-button"
-            aria-label="Добавить изображение"
-            title="JPEG, PNG, WebP · до 10 МБ"
+            aria-label={t('Добавить изображение')}
+            title={t('JPEG, PNG, WebP · до 10 МБ')}
             disabled={locked || !apiModel?.inputs?.image}
             onClick={() => input.current?.click()}
           >
@@ -290,8 +297,8 @@ export default function PromptComposer({
           <button
             type="button"
             className="icon-button"
-            aria-label="Загрузка видео пока недоступна"
-            title="API пока не поддерживает входное видео"
+            aria-label={t('Загрузка видео пока недоступна')}
+            title={t('API пока не поддерживает входное видео')}
             disabled
           >
             <Video size={19} />
@@ -303,21 +310,22 @@ export default function PromptComposer({
           aria-expanded={options}
           onClick={() => setOptions(!options)}
         >
-          Параметры <ChevronDown size={13} />
+          {t('Параметры ')}
+          <ChevronDown size={13} />
         </button>
         <button className="glass-button primary wf-create-button" disabled={!canSubmit}>
           {submitting ? <LoaderCircle className="spin" size={17} /> : <Sparkles size={17} />}
-          <span>{submitting ? 'Отправляем…' : 'Создать'}</span>
-          <small>{cost != null ? `${cost} кр.` : '—'}</small>
+          <span>{t(submitting ? 'Отправляем…' : 'Создать')}</span>
+          <small>{t(cost != null ? `${cost} кр.` : '—')}</small>
           <ArrowUpRight size={16} />
         </button>
       </div>
       {options && (
         <div className="wf-composer-options">
           <label>
-            Режим
+            {t('Режим')}
             <select
-              aria-label="Режим"
+              aria-label={t('Режим')}
               value={mode}
               disabled={locked || !apiModel?.modes?.TEXT_TO_VIDEO}
               onChange={(event) => setMode(event.target.value)}
@@ -326,52 +334,53 @@ export default function PromptComposer({
                 .filter((key) => modeNames[key])
                 .map((key) => (
                   <option key={key} value={key}>
-                    {modeNames[key]}
+                    {t(modeNames[key])}
                   </option>
                 ))}
             </select>
           </label>
           <label>
-            Длительность
+            {t('Длительность')}
             <select
-              aria-label="Длительность"
+              aria-label={t('Длительность')}
               value={duration}
               disabled={locked || !capabilities}
               onChange={(event) => setDuration(Number(event.target.value))}
             >
               {(capabilities?.durations || []).map((value) => (
                 <option key={value} value={value}>
-                  {value} сек
+                  {t(value)}
+                  {t(' сек')}
                 </option>
               ))}
             </select>
           </label>
           <label>
-            Качество
+            {t('Качество')}
             <select
-              aria-label="Качество"
+              aria-label={t('Качество')}
               value={quality}
               disabled={locked || !capabilities}
               onChange={(event) => setQuality(event.target.value)}
             >
               {(capabilities?.qualities || []).map((value) => (
                 <option key={value} value={value}>
-                  {value === 'standard' ? 'Стандартное' : value}
+                  {t(value === 'standard' ? 'Стандартное' : value)}
                 </option>
               ))}
             </select>
           </label>
           <label>
-            Формат
+            {t('Формат')}
             <select
-              aria-label="Формат"
+              aria-label={t('Формат')}
               value={aspectRatio}
               disabled={locked || !capabilities}
               onChange={(event) => setAspectRatio(event.target.value)}
             >
               {(capabilities?.aspectRatios || []).map((value) => (
                 <option key={value} value={value}>
-                  {value === 'source' ? 'По изображению' : value}
+                  {t(value === 'source' ? 'По изображению' : value)}
                 </option>
               ))}
             </select>
@@ -391,37 +400,41 @@ export default function PromptComposer({
       />
       {pendingRequest && (
         <div className="wf-composer-pending" role="status">
-          <span>Ответ на предыдущий запрос не подтверждён.</span>
+          <span>{t('Ответ на предыдущий запрос не подтверждён.')}</span>
           <button type="button" className="text-button" disabled={submitting} onClick={onRetry}>
             <RotateCcw size={14} />
-            Повторить проверку
+            {t('Повторить проверку')}
           </button>
         </div>
       )}
       {(error || modelError) && (
         <p className="wf-composer-error" role="alert">
-          {error || modelError}
+          {t(error || modelError)}
         </p>
       )}
       {!modelError && !apiModel?.available && (
         <p className="wf-composer-note">
-          {model.provider
-            ? 'Higgsfield — провайдер. Для генерации выбери Kling или Seedance.'
-            : apiModel?.enabled
-              ? 'Сервис генерации пока не подключён. Твой промпт можно подготовить заранее.'
-              : 'Эта модель появится позже. Генерация пока недоступна.'}
+          {t(
+            model.provider
+              ? 'Higgsfield — провайдер. Для генерации выбери Kling или Seedance.'
+              : apiModel?.enabled
+                ? 'Сервис генерации пока не подключён. Твой промпт можно подготовить заранее.'
+                : 'Эта модель появится позже. Генерация пока недоступна.',
+          )}
         </p>
       )}
       {insufficient && (
-        <p className="wf-composer-note">Недостаточно кредитов для этой генерации.</p>
+        <p className="wf-composer-note">{t('Недостаточно кредитов для этой генерации.')}</p>
       )}
       <div className="wf-composer-footnote">
         <span>
-          {user.isAdmin
-            ? 'Администратор · без списания кредитов'
-            : `Доступно ${user.generationCredits ?? 0} кредитов`}
+          {t(
+            user.isAdmin
+              ? 'Администратор · без списания кредитов'
+              : `Доступно ${user.generationCredits ?? 0} кредитов`,
+          )}
         </span>
-        <span>{prompt.length} / 2000 · Ctrl + Enter</span>
+        <span>{t(prompt.length)} / 2000 · Ctrl + Enter</span>
       </div>
     </form>
   );

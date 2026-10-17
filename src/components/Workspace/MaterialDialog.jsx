@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useState } from 'react';
 import { Download } from 'lucide-react';
 import Modal from '../UI/Modal';
@@ -5,6 +6,7 @@ import { downloadImage, downloadVideo } from '../../services/api';
 import GenerationPending, { FrameTracing, isGenerationActive } from './GenerationPending';
 
 export default function MaterialDialog({ item, onClose }) {
+  const { t, locale } = useI18n();
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
   const image =
@@ -16,7 +18,7 @@ export default function MaterialDialog({ item, onClose }) {
   return (
     <Modal
       open={!!item}
-      title={image ? 'Изображение' : 'Результат генерации'}
+      title={t(image ? 'Изображение' : 'Результат генерации')}
       onClose={onClose}
       className="wf-material-dialog"
     >
@@ -27,12 +29,12 @@ export default function MaterialDialog({ item, onClose }) {
             <GenerationPending />
           ) : item.status === 'failed' ? (
             <p className="wf-error" role="alert">
-              {item.errorMessage || 'Генерация не завершена.'}
+              {t(item.errorMessage || 'Генерация не завершена.')}
             </p>
           ) : image ? (
             <img
               src={item.resultImageUrl || item.resultImageUrls?.[0] || item.url}
-              alt={item.name || 'Изображение'}
+              alt={item.name || t('Изображение')}
             />
           ) : item.resultVideoUrl ? (
             <video
@@ -43,11 +45,11 @@ export default function MaterialDialog({ item, onClose }) {
               preload="metadata"
             />
           ) : (
-            <p className="muted">Материал ещё не готов.</p>
+            <p className="muted">{t('Материал ещё не готов.')}</p>
           )}
           <p className="wf-material-prompt">{item.prompt || item.name}</p>
           <div className="wf-material-meta">
-            <span>{new Date(item.createdAt).toLocaleString('ru-RU')}</span>
+            <span>{t(new Date(item.createdAt).toLocaleString(locale))}</span>
             {image &&
               item.kind !== 'image' &&
               (item.resultImageUrl || item.resultImageUrls?.length) && (
@@ -57,7 +59,7 @@ export default function MaterialDialog({ item, onClose }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Открыть оригинал
+                  {t('Открыть оригинал')}
                 </a>
               )}
             {(item.kind === 'image' || (!image && item.resultVideoUrl)) && (
@@ -77,13 +79,13 @@ export default function MaterialDialog({ item, onClose }) {
                 }}
               >
                 <Download size={15} />
-                {busy ? 'Скачивание…' : 'Скачать'}
+                {t(busy ? 'Скачивание…' : 'Скачать')}
               </button>
             )}
           </div>
           {error && (
             <p className="wf-error" role="alert">
-              {error}
+              {t(error)}
             </p>
           )}
         </>

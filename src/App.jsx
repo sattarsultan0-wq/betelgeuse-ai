@@ -1,4 +1,6 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { useI18n } from './i18n/index';
+import { lazy, Suspense, useEffect, useLayoutEffect } from 'react';
+import { updateWorkspaceTheme } from './hooks/useTheme';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
@@ -33,12 +35,16 @@ function ScrollManager() {
   return null;
 }
 export default function App() {
+  const { t } = useI18n();
   const { pathname } = useLocation();
-  const workspace = ['/workflow', '/trends', '/library', '/billing'].includes(pathname.replace(/\/$/, ''));
+  useLayoutEffect(() => updateWorkspaceTheme(pathname), [pathname]);
+  const workspace = ['/workflow', '/trends', '/library', '/billing'].includes(
+    pathname.replace(/\/$/, ''),
+  );
   return (
     <>
       <a className="skip-link" href="#main">
-        К содержимому
+        {t('К содержимому')}
       </a>
       <ScrollManager />
       {!workspace && <Header />}
@@ -48,7 +54,7 @@ export default function App() {
             pathname.replace(/\/$/, '') === '/workflow' ? (
               <WorkflowLoader />
             ) : (
-              <div className="subpage container">Загрузка…</div>
+              <div className="subpage container">{t('Загрузка…')}</div>
             )
           }
         >
@@ -70,9 +76,9 @@ export default function App() {
               path="*"
               element={
                 <section className="subpage container">
-                  <h1>Эта орбита пока пуста</h1>
+                  <h1>{t('Эта орбита пока пуста')}</h1>
                   <Link className="glass-button" to="/">
-                    На главную
+                    {t('На главную')}
                   </Link>
                 </section>
               }

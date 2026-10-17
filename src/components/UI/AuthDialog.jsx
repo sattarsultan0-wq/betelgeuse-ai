@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowUpRight, LoaderCircle, LockKeyhole } from 'lucide-react';
@@ -38,6 +39,7 @@ function AppleMark() {
 }
 
 export default function AuthDialog() {
+  const { t } = useI18n();
   const { dialog, setDialog, authenticate, authNotice, setAuthNotice } = useAuth();
   const initData = useTelegram();
   const [error, setError] = useState(''),
@@ -100,7 +102,7 @@ export default function AuthDialog() {
   return (
     <Modal
       open={!!dialog}
-      title={register ? 'Начни свою историю' : 'С возвращением'}
+      title={t(register ? 'Начни свою историю' : 'С возвращением')}
       onClose={() => setDialog(null)}
       className="auth-modal"
       showTitle={false}
@@ -113,34 +115,37 @@ export default function AuthDialog() {
           </div>
           <div className="auth-visual-art" />
           <div className="auth-visual-copy">
-            <span className="eyebrow">ТВОЯ НОВАЯ ОРБИТА</span>
+            <span className="eyebrow">{t('ТВОЯ НОВАЯ ОРБИТА')}</span>
             <p>
-              БОЛЬШИЕ ИДЕИ.
+              {t('БОЛЬШИЕ ИДЕИ.')}
               <br />
               <span>
-                БЕСКОНЕЧНЫЕ
+                {t('БЕСКОНЕЧНЫЕ')}
                 <br />
-                ВОЗМОЖНОСТИ.
+                {t('ВОЗМОЖНОСТИ.')}
               </span>
             </p>
             <small>
-              Одно пространство для всего,
+              {t('Одно пространство для всего,')}
               <br />
-              что ты можешь представить.
+              {t('что ты можешь представить.')}
             </small>
           </div>
           <span className="auth-visual-bottom">
-            FROM AN IDEA TO INFINITY <Star />
+            {t('FROM AN IDEA TO INFINITY ')}
+            <Star />
           </span>
         </aside>
         <div className="auth-content">
           <div className="auth-heading">
-            <span className="eyebrow">ТВОЁ ТВОРЧЕСКОЕ ПРОСТРАНСТВО</span>
-            <h2>{register ? 'Начни свою историю' : 'С возвращением'}</h2>
+            <span className="eyebrow">{t('ТВОЁ ТВОРЧЕСКОЕ ПРОСТРАНСТВО')}</span>
+            <h2>{t(register ? 'Начни свою историю' : 'С возвращением')}</h2>
             <p>
-              {register
-                ? 'Создай аккаунт. Дай идеям новую жизнь.'
-                : 'Войди и продолжи создавать невероятное.'}
+              {t(
+                register
+                  ? 'Создай аккаунт. Дай идеям новую жизнь.'
+                  : 'Войди и продолжи создавать невероятное.',
+              )}
             </p>
           </div>
           <div className="social-login-buttons">
@@ -156,13 +161,16 @@ export default function AuthDialog() {
                 aria-busy={socialBusy === provider}
               >
                 {socialBusy === provider ? <LoaderCircle size={20} className="spin" /> : <Mark />}
-                <span>Войти через {label}</span>
-                {providers?.[provider]?.available === false && <small>Скоро</small>}
+                <span>
+                  {t('Войти через ')}
+                  {t(label)}
+                </span>
+                {providers?.[provider]?.available === false && <small>{t('Скоро')}</small>}
               </button>
             ))}
           </div>
           <div className="auth-divider">
-            <span>или с помощью email</span>
+            <span>{t('или с помощью email')}</span>
           </div>
           <AnimatePresence mode="wait" initial={false}>
             <motion.form
@@ -176,14 +184,14 @@ export default function AuthDialog() {
             >
               {register && (
                 <label>
-                  Имя
+                  {t('Имя')}
                   <input
                     name="name"
                     autoComplete="name"
                     required
                     minLength={2}
                     maxLength={80}
-                    placeholder="Как тебя зовут?"
+                    placeholder={t('Как тебя зовут?')}
                     disabled={working}
                   />
                 </label>
@@ -201,7 +209,7 @@ export default function AuthDialog() {
                 />
               </label>
               <label>
-                Пароль
+                {t('Пароль')}
                 <input
                   name="password"
                   type="password"
@@ -209,18 +217,18 @@ export default function AuthDialog() {
                   required
                   minLength={register ? 10 : 1}
                   maxLength={72}
-                  placeholder={register ? 'Не менее 10 символов' : 'Твой пароль'}
+                  placeholder={t(register ? 'Не менее 10 символов' : 'Твой пароль')}
                   disabled={working}
                 />
               </label>
               {error && (
                 <p className="error auth-error" role="alert">
-                  {error}
+                  {t(error)}
                 </p>
               )}
               <button className="glass-button primary auth-submit" disabled={working}>
                 {busy ? <LoaderCircle className="spin" size={19} /> : <ArrowUpRight size={19} />}{' '}
-                {register ? 'Создать аккаунт' : 'Войти в аккаунт'}
+                {t(register ? 'Создать аккаунт' : 'Войти в аккаунт')}
               </button>
             </motion.form>
           </AnimatePresence>
@@ -241,23 +249,23 @@ export default function AuthDialog() {
                 }
               }}
             >
-              Войти через Telegram
+              {t('Войти через Telegram')}
             </button>
           )}
           <div className="auth-switch">
-            <span>{register ? 'Уже есть аккаунт?' : 'Пока нет аккаунта?'}</span>
+            <span>{t(register ? 'Уже есть аккаунт?' : 'Пока нет аккаунта?')}</span>
             <button
               className="text-button"
               disabled={working}
               onClick={() => setDialog(register ? 'login' : 'register')}
             >
-              {register ? 'Войти' : 'Создать аккаунт'}
+              {t(register ? 'Войти' : 'Создать аккаунт')}
               <ArrowUpRight size={13} />
             </button>
           </div>
           <p className="auth-security">
             <LockKeyhole size={12} />
-            <span>Защищённый вход. Твоё пространство — только твоё.</span>
+            <span>{t('Защищённый вход. Твоё пространство — только твоё.')}</span>
           </p>
         </div>
       </div>

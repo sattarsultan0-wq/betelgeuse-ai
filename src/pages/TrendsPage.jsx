@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n/index';
 import { useState } from 'react';
 import { Flame, RotateCcw } from 'lucide-react';
 import useTrends, { remoteTrend } from '../hooks/useTrends';
@@ -6,6 +7,7 @@ import VideoModal from '../components/VideoShowcase/VideoModal';
 import '../styles/trends.css';
 
 export default function TrendsPage() {
+  const { t } = useI18n();
   const { items, loading, error, reload } = useTrends();
   const [selected, setSelected] = useState(null);
   const videos = items.filter(remoteTrend);
@@ -13,19 +15,21 @@ export default function TrendsPage() {
     <section className="wf-page trends-page">
       <header className="wf-page-heading trends-heading">
         <span className="eyebrow">
-          <Flame size={13} /> НАЙДИ СВОЮ ИСКРУ
+          <Flame size={13} />
+          {t(' НАЙДИ СВОЮ ИСКРУ')}
         </span>
         <h1>
-          Тренды<span className="dim">.</span>
+          {t('Тренды')}
+          <span className="dim">.</span>
         </h1>
-        <p>Исследуй популярные AI-видео и вдохновляйся новыми идеями</p>
+        <p>{t('Исследуй популярные AI-видео и вдохновляйся новыми идеями')}</p>
       </header>
       {error && (
         <div className="trends-error" role="alert">
-          <p>{error}</p>
+          <p>{t(error)}</p>
           <button className="glass-button compact" disabled={loading} onClick={reload}>
             <RotateCcw size={14} />
-            Повторить загрузку
+            {t('Повторить загрузку')}
           </button>
         </div>
       )}
@@ -33,9 +37,9 @@ export default function TrendsPage() {
         <div
           className="trends-grid trends-skeleton-grid"
           role="status"
-          aria-label="Загружаем тренды"
+          aria-label={t('Загружаем тренды')}
         >
-          <span className="sr-only">Загружаем тренды…</span>
+          <span className="sr-only">{t('Загружаем тренды…')}</span>
           {Array.from({ length: 8 }, (_, index) => (
             <div className="trends-skeleton" key={index}>
               <span />
@@ -46,10 +50,13 @@ export default function TrendsPage() {
       ) : videos.length ? (
         <>
           <div className="trends-gallery-meta">
-            <span>{videos.length} видео для вдохновения</span>
-            <span>Выбери сюжет. Создай свою версию.</span>
+            <span>
+              {t(videos.length)}
+              {t(' видео для вдохновения')}
+            </span>
+            <span>{t('Выбери сюжет. Создай свою версию.')}</span>
           </div>
-          <div className="trends-grid" aria-label="Галерея трендов" aria-busy={loading}>
+          <div className="trends-grid" aria-label={t('Галерея трендов')} aria-busy={loading}>
             {videos.map((item, index) => (
               <VideoCard key={item.id} item={item} index={index} gallery onSelect={setSelected} />
             ))}
@@ -61,15 +68,15 @@ export default function TrendsPage() {
             <span className="trends-empty-symbol">
               <Flame size={30} />
             </span>
-            <h2>Новая волна уже близко</h2>
+            <h2>{t('Новая волна уже близко')}</h2>
             <p>
-              Здесь появятся популярные AI-видео.
+              {t('Здесь появятся популярные AI-видео.')}
               <br />
-              Загляни позже за новой порцией вдохновения.
+              {t('Загляни позже за новой порцией вдохновения.')}
             </p>
             <button className="glass-button compact" onClick={reload}>
               <RotateCcw size={14} />
-              Обновить
+              {t('Обновить')}
             </button>
           </div>
         )

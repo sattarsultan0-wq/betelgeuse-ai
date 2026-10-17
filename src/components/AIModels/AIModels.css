@@ -46,18 +46,18 @@
   font-weight: 600;
   letter-spacing: -0.05em;
   white-space: nowrap;
-  color: #d5d5d5;
+  color: var(--text-d5d5d5);
 }
 .home-models-mark {
   display: grid;
   place-items: center;
   width: 35px;
   height: 35px;
-  border: 1px solid #ffffff30;
+  border: 1px solid var(--border-ffffff-188);
   border-radius: 10px;
   font-size: 20px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-ffffff);
 }
 .home-models-item-seedance .home-models-mark {
   border-radius: 50%;
@@ -68,10 +68,10 @@
 .home-models-star {
   margin-left: 42px;
   font-size: 13px;
-  color: #494949;
+  color: var(--text-494949);
 }
 
-.model-logo{
+.model-logo {
   width: 35px;
 }
 
@@ -108,5 +108,3 @@
     overflow-x: auto;
   }
 }
-
-

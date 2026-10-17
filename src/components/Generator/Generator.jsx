@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowUpRight,
@@ -34,6 +35,7 @@ const prompts = [
   'Камера скользит над горными вершинами далёкой планеты. Огромная луна над горизонтом, дымка, кинематографический свет.',
 ];
 export default function Generator() {
+  const { t } = useI18n();
   const { user, setDialog, refresh } = useAuth();
   const { generation, phase, error, submit, setError, busy } = useGeneration(user?.id);
   const [models, setModels] = useState([]),
@@ -164,17 +166,17 @@ export default function Generator() {
     <section className="generator section container" id="generator">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">02 / СОЗДАЙ ТО, ЧЕГО ЕЩЁ НЕТ</span>
+          <span className="eyebrow">{t('02 / СОЗДАЙ ТО, ЧЕГО ЕЩЁ НЕТ')}</span>
           <h2>
-            ТВОЯ ИДЕЯ.
+            {t('ТВОЯ ИДЕЯ.')}
             <br />
-            <span className="dim">НАША ТЕХНОЛОГИЯ.</span>
+            <span className="dim">{t('НАША ТЕХНОЛОГИЯ.')}</span>
           </h2>
         </div>
         <p>
-          Не нужно быть режиссёром.
+          {t('Не нужно быть режиссёром.')}
           <br />
-          Достаточно быть собой.
+          {t('Достаточно быть собой.')}
         </p>
       </div>
       <div className="generator-layout">
@@ -192,14 +194,14 @@ export default function Generator() {
           }}
         >
           <div className="generator-toolbar">
-            <div className="mode-tabs" role="group" aria-label="Режим генерации">
+            <div className="mode-tabs" role="group" aria-label={t('Режим генерации')}>
               <button
                 disabled={busy}
                 className={mode === 'TEXT_TO_VIDEO' ? 'active' : ''}
                 onClick={() => setMode('TEXT_TO_VIDEO')}
               >
                 <Sparkles size={14} />
-                Текст в видео
+                {t('Текст в видео')}
               </button>
               <button
                 disabled={busy}
@@ -207,13 +209,13 @@ export default function Generator() {
                 onClick={() => setMode('IMAGE_TO_VIDEO')}
               >
                 <ImagePlus size={14} />
-                Фото в видео
+                {t('Фото в видео')}
               </button>
             </div>
             <span className="studio-tag">BETELGEUSE STUDIO</span>
           </div>
           <label className="prompt-label" htmlFor="prompt">
-            Твоё воображение — единственное ограничение.
+            {t('Твоё воображение — единственное ограничение.')}
           </label>
           <textarea
             id="prompt"
@@ -222,7 +224,7 @@ export default function Generator() {
             onChange={(e) => setPrompt(e.target.value)}
             maxLength={2000}
             disabled={busy}
-            placeholder="Опиши видео, которое хочешь создать..."
+            placeholder={t('Опиши видео, которое хочешь создать...')}
           />
           <div className="prompt-footer">
             <button
@@ -231,23 +233,26 @@ export default function Generator() {
               disabled={!prompt || busy}
             >
               <X size={13} />
-              Очистить
+              {t('Очистить')}
             </button>
-            <span>{prompt.length} / 2000</span>
+            <span>{t(prompt.length)} / 2000</span>
           </div>
           {mode === 'IMAGE_TO_VIDEO' && (
             <div className="upload-zone">
               {preview ? (
                 <div className="image-preview">
-                  <img src={preview} alt="Исходное изображение" />
+                  <img src={preview} alt={t('Исходное изображение')} />
                   <span>
                     {file.name}
-                    <small>{(file.size / 1024 / 1024).toFixed(1)} МБ</small>
+                    <small>
+                      {t((file.size / 1024 / 1024).toFixed(1))}
+                      {t(' МБ')}
+                    </small>
                   </span>
                   <button
                     className="icon-button"
                     disabled={busy}
-                    aria-label="Удалить изображение"
+                    aria-label={t('Удалить изображение')}
                     onClick={() => {
                       setFile(null);
                       input.current.value = '';
@@ -264,7 +269,8 @@ export default function Generator() {
                 >
                   <ImagePlus size={24} />
                   <span>
-                    Добавь изображение или перетащи сюда<small>JPEG, PNG, WebP · до 10 МБ</small>
+                    {t('Добавь изображение или перетащи сюда')}
+                    <small>{t('JPEG, PNG, WebP · до 10 МБ')}</small>
                   </span>
                 </button>
               )}
@@ -289,12 +295,12 @@ export default function Generator() {
                 <span className="model-symbol">✦</span>
                 <span>
                   {model?.name || 'Higgsfield'}
-                  <small>{model?.subtitle || 'Подключение модели'}</small>
+                  <small>{t(model?.subtitle || 'Подключение модели')}</small>
                 </span>
                 <ChevronDown size={15} />
               </button>
               {dropdown && (
-                <div className="model-options glass" role="group" aria-label="Модели">
+                <div className="model-options glass" role="group" aria-label={t('Модели')}>
                   {models.map((item) => (
                     <button
                       key={item.id}
@@ -306,10 +312,10 @@ export default function Generator() {
                     >
                       <span>
                         {item.name}
-                        <small>{item.subtitle}</small>
+                        <small>{t(item.subtitle)}</small>
                       </span>
                       <small>
-                        {item.enabled ? (item.available ? 'API' : 'Настройка') : 'Скоро'}
+                        {t(item.enabled ? (item.available ? 'API' : 'Настройка') : 'Скоро')}
                       </small>
                     </button>
                   ))}
@@ -319,14 +325,15 @@ export default function Generator() {
             <label className="setting-select">
               <Clock3 size={14} />
               <select
-                aria-label="Длительность"
+                aria-label={t('Длительность')}
                 disabled={busy || !capabilities}
                 value={duration}
                 onChange={(e) => setDuration(Number(e.target.value))}
               >
                 {(capabilities?.durations || [5, 10]).map((value) => (
                   <option key={value} value={value}>
-                    {value} сек
+                    {t(value)}
+                    {t(' сек')}
                   </option>
                 ))}
               </select>
@@ -335,14 +342,14 @@ export default function Generator() {
             <label className="setting-select">
               <SlidersHorizontal size={14} />
               <select
-                aria-label="Качество"
+                aria-label={t('Качество')}
                 disabled={busy || !capabilities}
                 value={quality}
                 onChange={(e) => setQuality(e.target.value)}
               >
                 {(capabilities?.qualities || ['standard']).map((value) => (
                   <option key={value} value={value}>
-                    {value === 'standard' ? 'Стандартное' : value}
+                    {t(value === 'standard' ? 'Стандартное' : value)}
                   </option>
                 ))}
               </select>
@@ -350,8 +357,8 @@ export default function Generator() {
             </label>
           </div>
           <div className="aspect-row">
-            <span>Формат</span>
-            <div role="group" aria-label="Соотношение сторон">
+            <span>{t('Формат')}</span>
+            <div role="group" aria-label={t('Соотношение сторон')}>
               {(capabilities?.aspectRatios || ['16:9', '9:16', '1:1']).map((ratio) => (
                 <button
                   disabled={busy || !capabilities}
@@ -366,7 +373,7 @@ export default function Generator() {
                   ) : (
                     <Square size={14} />
                   )}{' '}
-                  {ratio === 'source' ? 'По изображению' : ratio}
+                  {t(ratio === 'source' ? 'По изображению' : ratio)}
                 </button>
               ))}
             </div>
@@ -374,12 +381,12 @@ export default function Generator() {
           {(error || modelError) && (
             <p className="error generator-error" role="alert">
               <AlertCircle size={15} />
-              {error || modelError}
+              {t(error || modelError)}
             </p>
           )}
           {model && !model.available && !modelError && (
             <p className="availability-note">
-              Сервис генерации готовится к запуску. Исследуй интерфейс и сохрани свою идею.
+              {t('Сервис генерации готовится к запуску. Исследуй интерфейс и сохрани свою идею.')}
             </p>
           )}
           <button
@@ -388,19 +395,24 @@ export default function Generator() {
             disabled={busy || (!!user && (!user.isAdmin || !model?.available))}
           >
             {busy ? <LoaderCircle size={18} className="spin" /> : <Sparkles size={18} />}{' '}
-            {busy ? statuses[phase] : 'СГЕНЕРИРОВАТЬ ВИДЕО'}
+            {t(busy ? statuses[phase] : 'СГЕНЕРИРОВАТЬ ВИДЕО')}
             {!busy && <ArrowUpRight size={18} />}
           </button>
           <div className="generation-meta">
             <span>
-              {user
-                ? user.isAdmin
-                  ? 'Администратор · без списания кредитов'
-                  : `Доступно: ${user.generationCredits ?? 0} ед.`
-                : 'Войди, чтобы начать создавать'}
+              {t(
+                user
+                  ? user.isAdmin
+                    ? 'Администратор · без списания кредитов'
+                    : `Доступно: ${user.generationCredits ?? 0} ед.`
+                  : 'Войди, чтобы начать создавать',
+              )}
             </span>
             <span>
-              {user?.isAdmin ? 0 : (cost ?? '—')} ед. квоты / {duration} сек
+              {t(user?.isAdmin ? 0 : (cost ?? '—'))}
+              {t(' ед. квоты / ')}
+              {t(duration)}
+              {t(' сек')}
             </span>
           </div>
         </div>
@@ -414,7 +426,7 @@ export default function Generator() {
               <div className="result-details">
                 <span>
                   <CircleCheck size={15} />
-                  Видео готово
+                  {t('Видео готово')}
                 </span>
                 <button
                   className="glass-button compact"
@@ -431,7 +443,7 @@ export default function Generator() {
                   }}
                 >
                   <Download size={15} />
-                  {downloading ? 'Скачивание…' : 'Скачать'}
+                  {t(downloading ? 'Скачивание…' : 'Скачать')}
                 </button>
               </div>
             </>
@@ -443,28 +455,30 @@ export default function Generator() {
                 <div />
                 <Film size={28} />
               </div>
-              <h3>{statuses[phase]}</h3>
+              <h3>{t(statuses[phase])}</h3>
               <p>
-                {busy
-                  ? 'Это может занять несколько минут. Статус обновляется автоматически.'
-                  : 'Здесь появится твоё видео. Опиши сцену, выбери настройки — и дай идее ожить.'}
+                {t(
+                  busy
+                    ? 'Это может занять несколько минут. Статус обновляется автоматически.'
+                    : 'Здесь появится твоё видео. Опиши сцену, выбери настройки — и дай идее ожить.',
+                )}
               </p>
               {busy ? (
                 <div className="progress-track">
                   <span />
                 </div>
               ) : (
-                <span className="result-watermark">YOUR NEXT BIG IDEA</span>
+                <span className="result-watermark">{t('YOUR NEXT BIG IDEA')}</span>
               )}
             </>
           )}
         </aside>
       </div>
       <div className="prompt-suggestions">
-        <span>Нужна искра?</span>
+        <span>{t('Нужна искра?')}</span>
         {examples.map((example, index) => (
           <button disabled={busy} key={example} onClick={() => setPrompt(prompts[index])}>
-            {example}
+            {t(example)}
             <ArrowUpRight size={12} />
           </button>
         ))}

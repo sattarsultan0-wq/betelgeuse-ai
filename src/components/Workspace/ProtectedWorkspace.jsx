@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { ArrowUpRight, LoaderCircle, LockKeyhole } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -6,6 +7,7 @@ import WorkflowLoader from './WorkflowLoader';
 import { Star } from '../UI/Brand';
 
 export default function ProtectedWorkspace() {
+  const { t } = useI18n();
   const { user, loading, requestAuth } = useAuth();
   const { pathname } = useLocation();
   if (loading)
@@ -14,7 +16,7 @@ export default function ProtectedWorkspace() {
     ) : (
       <div className="wf-access">
         <LoaderCircle className="spin" />
-        <p>Проверяем сессию…</p>
+        <p>{t('Проверяем сессию…')}</p>
       </div>
     );
   if (user) return <Outlet />;
@@ -25,16 +27,17 @@ export default function ProtectedWorkspace() {
       </Link>
       <LockKeyhole size={32} />
       <h1>
-        Твоё пространство
+        {t('Твоё пространство')}
         <br />
-        <span className="dim">ждёт тебя.</span>
+        <span className="dim">{t('ждёт тебя.')}</span>
       </h1>
-      <p>Войди, чтобы создавать и видеть свои материалы, историю и баланс.</p>
+      <p>{t('Войди, чтобы создавать и видеть свои материалы, историю и баланс.')}</p>
       <button className="glass-button primary" onClick={() => requestAuth('login', pathname)}>
-        Войти в аккаунт <ArrowUpRight size={18} />
+        {t('Войти в аккаунт ')}
+        <ArrowUpRight size={18} />
       </button>
       <Link className="text-button" to="/">
-        Вернуться на главную
+        {t('Вернуться на главную')}
       </Link>
     </section>
   );

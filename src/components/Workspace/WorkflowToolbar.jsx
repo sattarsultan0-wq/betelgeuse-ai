@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { AudioLines, Boxes, FileText, ImagePlus, Play, Video, X } from 'lucide-react';
@@ -14,6 +15,7 @@ export default function WorkflowToolbar({
   error,
   busy,
 }) {
+  const { t } = useI18n();
   const [tool, setTool] = useState(null),
     [modelsOpen, setModelsOpen] = useState(false),
     [prompt, setPrompt] = useState('');
@@ -104,7 +106,7 @@ export default function WorkflowToolbar({
               <form
                 className="wf-pro-prompt-popover"
                 role="dialog"
-                aria-label="Добавить Prompt"
+                aria-label={t('Добавить Prompt')}
                 onSubmit={(event) => {
                   event.preventDefault();
                   if (!prompt.trim()) return;
@@ -114,11 +116,11 @@ export default function WorkflowToolbar({
                 }}
               >
                 <header>
-                  <span>Prompt</span>
+                  <span>{t('Prompt')}</span>
                   <button
                     type="button"
                     className="icon-button"
-                    aria-label="Закрыть Prompt"
+                    aria-label={t('Закрыть Prompt')}
                     onClick={close}
                   >
                     <X size={16} />
@@ -126,10 +128,10 @@ export default function WorkflowToolbar({
                 </header>
                 <textarea
                   ref={promptInput}
-                  aria-label="Новый промпт"
+                  aria-label={t('Новый промпт')}
                   value={prompt}
                   onChange={(event) => setPrompt(event.target.value)}
-                  placeholder="Опиши свою идею…"
+                  placeholder={t('Опиши свою идею…')}
                   maxLength={2000}
                   rows={5}
                   onKeyDown={(event) => {
@@ -138,9 +140,9 @@ export default function WorkflowToolbar({
                   }}
                 />
                 <footer>
-                  <small>{prompt.length} / 2000</small>
+                  <small>{t(prompt.length)} / 2000</small>
                   <button className="glass-button primary compact" disabled={!prompt.trim()}>
-                    Add
+                    {t('Add')}
                   </button>
                 </footer>
               </form>
@@ -150,21 +152,21 @@ export default function WorkflowToolbar({
       </div>
       {error && (
         <p className="wf-pro-tool-error" role="alert">
-          {error}
+          {t(error)}
         </p>
       )}
       {busy && (
         <span className="wf-pro-file-status" role="status">
-          Сохраняем файл…
+          {t('Сохраняем файл…')}
         </span>
       )}
-      <div className="wf-pro-toolbar" role="toolbar" aria-label="Инструменты Professional">
+      <div className="wf-pro-toolbar" role="toolbar" aria-label={t('Инструменты Professional')}>
         {tools.map(({ id, label, Icon, disabled, title }) => (
-          <span className="wf-pro-tool-wrap" key={id} title={title || label}>
+          <span className="wf-pro-tool-wrap" key={id} title={t(title || label)}>
             <button
               type="button"
               className={`wf-pro-tool ${id === 'start' ? 'wf-pro-start' : ''}`}
-              aria-label={label}
+              aria-label={t(label)}
               aria-expanded={
                 id === 'models' ? modelsOpen : id === 'prompt' ? tool === id : undefined
               }
@@ -179,7 +181,7 @@ export default function WorkflowToolbar({
             >
               <Icon size={19} />
             </button>
-            <span>{label}</span>
+            <span>{t(label)}</span>
           </span>
         ))}
       </div>
@@ -188,7 +190,7 @@ export default function WorkflowToolbar({
         ref={image}
         type="file"
         accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-        aria-label="Файл Image Node"
+        aria-label={t('Файл Image Node')}
         tabIndex={-1}
         onChange={(event) => {
           const file = event.target.files[0];
@@ -201,7 +203,7 @@ export default function WorkflowToolbar({
         ref={video}
         type="file"
         accept="video/mp4,video/webm,.mp4,.webm"
-        aria-label="Файл Video Node"
+        aria-label={t('Файл Video Node')}
         tabIndex={-1}
         onChange={(event) => {
           const file = event.target.files[0];

@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useState } from 'react';
 import { Download, ImagePlus, LoaderCircle, Sparkles, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -17,6 +18,7 @@ const labels = {
   failed: 'Не удалось завершить запрос',
 };
 function PhotoSlot({ index, file, disabled, onChange, onRemove }) {
+  const { t } = useI18n();
   const [preview, setPreview] = useState('');
   useEffect(() => {
     if (!file) {
@@ -31,30 +33,35 @@ function PhotoSlot({ index, file, disabled, onChange, onRemove }) {
     <div className="trend-photo-slot">
       <label className={`trend-photo-picker ${disabled ? 'disabled' : ''}`}>
         {preview ? (
-          <img src={preview} alt={`Фотография ${index + 1}`} />
+          <img src={preview} alt={t('Фотография {{v0}}', { v0: index + 1 })} />
         ) : (
           <>
             <ImagePlus size={25} />
-            <span>Фото {index + 1}</span>
+            <span>
+              {t('Фото ')}
+              {t(index + 1)}
+            </span>
           </>
         )}
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp"
           disabled={disabled}
-          aria-label={`${file ? 'Заменить' : 'Добавить'} фотографию ${index + 1}`}
+          aria-label={t(file ? 'Заменить фотографию {{v0}}' : 'Добавить фотографию {{v0}}', {
+            v0: index + 1,
+          })}
           onChange={(event) => {
             onChange(event.target.files?.[0]);
             event.target.value = '';
           }}
         />
-        {file && <span className="trend-photo-replace">Заменить</span>}
+        {file && <span className="trend-photo-replace">{t('Заменить')}</span>}
       </label>
       {file && (
         <button
           className="icon-button trend-photo-remove"
           disabled={disabled}
-          aria-label={`Удалить фотографию ${index + 1}`}
+          aria-label={t('Удалить фотографию {{v0}}', { v0: index + 1 })}
           onClick={onRemove}
         >
           <X size={15} />
@@ -65,6 +72,7 @@ function PhotoSlot({ index, file, disabled, onChange, onRemove }) {
 }
 
 function VideoModalContent({ item, onClose, open, onExitComplete }) {
+  const { t } = useI18n();
   const { user, setDialog, refresh } = useAuth();
   const trendId = item.trendId || item.id;
   const [files, setFiles] = useState([]),
@@ -133,7 +141,7 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
     <Modal
       open={open}
       onExitComplete={onExitComplete}
-      title={item.title}
+      title={t(item.title)}
       className="trend-modal"
       onClose={() => {
         if (!closingBlocked) {
@@ -144,7 +152,7 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
     >
       <div className="trend-layout">
         <div className="trend-video-panel">
-          <span className="eyebrow">{completed ? 'ТВОЙ РЕЗУЛЬТАТ' : 'ПРИМЕР ТРЕНДА'}</span>
+          <span className="eyebrow">{t(completed ? 'ТВОЙ РЕЗУЛЬТАТ' : 'ПРИМЕР ТРЕНДА')}</span>
           <video
             ref={video.ref}
             src={videoSrc}
@@ -158,7 +166,7 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
           {mediaError && (
             <div>
               <p className="error" role="alert">
-                {mediaError}
+                {t(mediaError)}
               </p>
               <button
                 className="glass-button compact"
@@ -167,7 +175,7 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
                   video.play();
                 }}
               >
-                Повторить загрузку
+                {t('Повторить загрузку')}
               </button>
             </div>
           )}
@@ -177,7 +185,8 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
                 className="glass-button"
                 onClick={() => downloadVideo(generation.id).catch((err) => setError(err.message))}
               >
-                <Download size={16} /> Скачать
+                <Download size={16} />
+                {t(' Скачать')}
               </button>
               <button
                 className="glass-button"
@@ -187,21 +196,26 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
                   setMediaError('');
                 }}
               >
-                Создать ещё
+                {t('Создать ещё')}
               </button>
             </div>
           )}
         </div>
         <div className="trend-form-panel">
-          <span className="eyebrow">СОЗДАЙ СВОЮ ВЕРСИЮ</span>
-          <h3>Твоё лицо. Новый сюжет.</h3>
+          <span className="eyebrow">{t('СОЗДАЙ СВОЮ ВЕРСИЮ')}</span>
+          <h3>{t('Твоё лицо. Новый сюжет.')}</h3>
           <p className="trend-instruction">
-            Загрузите качественную фотографию, на которой лицо хорошо видно, человек смотрит прямо в
-            камеру, освещение равномерное
+            {t(
+              'Загрузите качественную фотографию, на которой лицо хорошо видно, человек смотрит прямо в камеру, освещение равномерное',
+            )}
           </p>
           <p className="muted">
-            {minPhotos === maxPhotos ? `${minPhotos} фото` : `От ${minPhotos} до ${maxPhotos} фото`}{' '}
-            · JPEG, PNG, WebP · до 10 МБ каждое
+            {t(
+              minPhotos === maxPhotos
+                ? `${minPhotos} фото`
+                : `От ${minPhotos} до ${maxPhotos} фото`,
+            )}{' '}
+            {t('· JPEG, PNG, WebP · до 10 МБ каждое')}
           </p>
           <div className="trend-photos">
             {Array.from({ length: maxPhotos }, (_, index) => (
@@ -220,16 +234,16 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
           </div>
           <div className="trend-status" role="status" aria-live="polite">
             {busy && <LoaderCircle size={18} className="spin" />}
-            <span>{labels[phase]}</span>
+            <span>{t(labels[phase])}</span>
           </div>
           {error && (
             <p className="error" role="alert">
-              {error}
+              {t(error)}
             </p>
           )}
           {!item.available && !generation && !pendingSubmission && !recovering && (
             <p className="muted">
-              {item.unavailableReason || 'Тренд пока недоступен для генерации.'}
+              {t(item.unavailableReason || 'Тренд пока недоступен для генерации.')}
             </p>
           )}
           {!completed && (
@@ -246,11 +260,13 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
               }
             >
               <Sparkles size={17} />
-              {!user
-                ? 'Войти для генерации'
-                : pendingSubmission || recovering
-                  ? 'Проверить запрос'
-                  : 'Сгенерировать видео'}
+              {t(
+                !user
+                  ? 'Войти для генерации'
+                  : pendingSubmission || recovering
+                    ? 'Проверить запрос'
+                    : 'Сгенерировать видео',
+              )}
             </button>
           )}
           {generation?.status === 'failed' && !generation.requiresReview && (
@@ -261,26 +277,28 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
                 setFiles([]);
               }}
             >
-              Создать ещё
+              {t('Создать ещё')}
             </button>
           )}
           {user && (
             <p className="muted">
-              {user.isAdmin
-                ? 'Администратор · без списания кредитов'
-                : `Доступная квота: ${user.generationCredits} · Стоимость: ${item.quotaCost || 1} ед.`}
+              {t(
+                user.isAdmin
+                  ? 'Администратор · без списания кредитов'
+                  : `Доступная квота: ${user.generationCredits} · Стоимость: ${item.quotaCost || 1} ед.`,
+              )}
             </p>
           )}
           {generation && (
             <Link className="text-button" to="/library" onClick={onClose}>
-              Посмотреть в библиотеке
+              {t('Посмотреть в библиотеке')}
             </Link>
           )}
           {busy && generation && (
-            <p className="muted">Можно закрыть окно. Видео появится в вашей библиотеке.</p>
+            <p className="muted">{t('Можно закрыть окно. Видео появится в вашей библиотеке.')}</p>
           )}
           {closingBlocked && (
-            <p className="muted">Дождитесь завершения загрузки и подтверждения запроса.</p>
+            <p className="muted">{t('Дождитесь завершения загрузки и подтверждения запроса.')}</p>
           )}
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useState } from 'react';
 import { AlertCircle, ArrowUpRight, Film, Play } from 'lucide-react';
 import useInlineVideo from '../../hooks/useInlineVideo';
@@ -10,6 +11,7 @@ export default function VideoCard({
   index = 0,
   gallery = false,
 }) {
+  const { t } = useI18n();
   const video = useInlineVideo(item.previewUrl || item.src, { autoplay: !gallery });
   const [posterError, setPosterError] = useState(false),
     [ratio, setRatio] = useState(item.mediaAspectRatio || '9 / 16');
@@ -39,7 +41,7 @@ export default function VideoCard({
       onBlur={() => {
         if (gallery) video.pause({ release: true });
       }}
-      aria-label={`Открыть видео: ${item.title}`}
+      aria-label={t('Открыть видео: {{v0}}', { v0: t(item.title) })}
     >
       {item.poster && !posterError ? (
         <img
@@ -72,20 +74,22 @@ export default function VideoCard({
           }}
         />
       )}
-      <span className="card-badge">TREND / {String(index + 1).padStart(2, '0')}</span>
+      <span className="card-badge">
+        {t('TREND /')} {String(index + 1).padStart(2, '0')}
+      </span>
       <span className="card-play">
         <Play size={15} />
       </span>
       {video.failed && (
         <span className="showcase-card-media-error">
           <AlertCircle size={13} />
-          Превью недоступно. Открыть видео
+          {t('Превью недоступно. Открыть видео')}
         </span>
       )}
       <span className="card-caption">
         <span>
-          {item.title}
-          <small>{item.model}</small>
+          {t(item.title)}
+          <small>{t(item.model)}</small>
         </span>
         <ArrowUpRight size={18} />
       </span>

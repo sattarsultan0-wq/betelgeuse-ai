@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import useTrends from '../../hooks/useTrends';
@@ -5,6 +6,7 @@ import VideoModal from './VideoModal';
 import VideoCard from './VideoCard';
 
 export default function VideoShowcase() {
+  const { t } = useI18n();
   const [selected, setSelected] = useState(null);
   const { items, loading, error, reload } = useTrends();
   return (
@@ -12,33 +14,34 @@ export default function VideoShowcase() {
       <div className="section-heading container">
         <div>
           <h2>
-            ВДОХНОВЛЯЙСЯ.
+            {t('ВДОХНОВЛЯЙСЯ.')}
             <br />
-            СОЗДАВАЙ. <span className="dim">УДИВЛЯЙ.</span>
+            {t('СОЗДАВАЙ. ')}
+            <span className="dim">{t('УДИВЛЯЙ.')}</span>
           </h2>
         </div>
         <p className="showcase-note container">
-            Нажми на тренд, добавь фотографии и создай свою версию.
+          {t('Нажми на тренд, добавь фотографии и создай свою версию.')}
         </p>
       </div>
       {loading && !items.length && (
         <div className="empty-state container" role="status">
           <LoaderCircle className="spin" />
-          <p>Загружаем примеры…</p>
+          <p>{t('Загружаем примеры…')}</p>
         </div>
       )}
       {error && (
         <div className="empty-state container">
           <p className="error" role="alert">
-            {error}
+            {t(error)}
           </p>
           <button className="glass-button compact" onClick={reload} disabled={loading}>
-            Повторить загрузку
+            {t('Повторить загрузку')}
           </button>
         </div>
       )}
       {!loading && !error && !items.length && (
-        <p className="showcase-note container">Новые примеры скоро появятся.</p>
+        <p className="showcase-note container">{t('Новые примеры скоро появятся.')}</p>
       )}
       {items.length > 0 && (
         <div className="showcase-rows">

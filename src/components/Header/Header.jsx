@@ -1,9 +1,11 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useRef, useState } from 'react';
 import { Menu, X, ArrowUpRight, LogOut, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Brand from '../UI/Brand';
 import { useAuth } from '../../context/AuthContext';
 import HeaderGlass from './HeaderGlass';
+import LanguageMenu from '../UI/LanguageMenu';
 import './Header.css';
 const links = [
   ['Главная', 'home'],
@@ -12,6 +14,7 @@ const links = [
   ['Тарифы', 'pricing'],
 ];
 export default function Header() {
+  const { t } = useI18n();
   const [scrolled, setScrolled] = useState(false),
     [open, setOpen] = useState(false),
     [error, setError] = useState('');
@@ -69,18 +72,24 @@ export default function Header() {
       <HeaderGlass />
       <div className="header-content">
         <Brand />
-        <nav className={open ? 'nav open' : 'nav'} aria-label="Основная навигация">
+        <nav className={open ? 'nav open' : 'nav'} aria-label={t('Основная навигация')}>
           {links.map(([label, id]) => (
             <a key={id} href={`/#${id}`} onClick={() => setOpen(false)}>
-              {label}
+              {t(label)}
             </a>
           ))}
         </nav>
         <div className="header-actions">
+          <LanguageMenu />
           {user ? (
             <>
               {user.isAdmin && (
-                <Link className="icon-button" to="/admin" aria-label="Админка" title="Админка">
+                <Link
+                  className="icon-button"
+                  to="/admin"
+                  aria-label={t('Админка')}
+                  title={t('Админка')}
+                >
                   <Shield size={18} />
                 </Link>
               )}
@@ -89,7 +98,7 @@ export default function Header() {
               </Link>
               <button
                 className="icon-button"
-                aria-label="Выйти"
+                aria-label={t('Выйти')}
                 onClick={() => logout().catch((err) => setError(err.message))}
               >
                 <LogOut size={17} />
@@ -98,10 +107,10 @@ export default function Header() {
           ) : (
             <>
               <button className="text-button login-button" onClick={() => setDialog('login')}>
-                Войти
+                {t('Войти')}
               </button>
               <button className="glass-button compact" onClick={() => setDialog('register')}>
-                Регистрация
+                {t('Регистрация')}
                 <ArrowUpRight size={16} />
               </button>
             </>
@@ -109,7 +118,7 @@ export default function Header() {
           <button
             className="icon-button menu-button"
             aria-expanded={open}
-            aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
+            aria-label={t(open ? 'Закрыть меню' : 'Открыть меню')}
             onClick={() => setOpen(!open)}
           >
             {open ? <X /> : <Menu />}
@@ -118,7 +127,7 @@ export default function Header() {
       </div>
       {error && (
         <p className="header-error error" role="alert">
-          {error}
+          {t(error)}
         </p>
       )}
     </header>

@@ -1,13 +1,15 @@
+import { useI18n } from '../../i18n/index';
 import { aiModels } from '../../assets/aiModels';
 import './AIModels.css';
 
 export default function AIModels() {
+  const { t } = useI18n();
   return (
     <section className="home-models" aria-labelledby="home-models-title">
       <div className="home-models-heading container">
         <div>
-          <h2 id="home-models-title">Ведущие AI-модели в одном месте</h2>
-          <p>Модели и технологии нашей платформы. Доступность — в рабочем пространстве.</p>
+          <h2 id="home-models-title">{t('Ведущие AI-модели в одном месте')}</h2>
+          <p>{t('Модели и технологии нашей платформы. Доступность — в рабочем пространстве.')}</p>
         </div>
       </div>
       <div className="home-models-marquee">

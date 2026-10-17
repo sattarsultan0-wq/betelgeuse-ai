@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import './generation-pending.css';
 
 export const isGenerationActive = (status) =>
@@ -24,6 +25,7 @@ export function FrameTracing() {
 }
 
 export default function GenerationPending() {
+  const { t } = useI18n();
   return (
     <div className="wf-generation-pending" role="status" aria-live="polite">
       <div className="wf-neural-pulse" aria-hidden="true">
@@ -31,7 +33,7 @@ export default function GenerationPending() {
           <span key={index} style={{ '--wf-pulse-delay': `${index * -0.14}s` }} />
         ))}
       </div>
-      <span className="wf-generating-label">Generating</span>
+      <span className="wf-generating-label">{t('Generating')}</span>
     </div>
   );
 }

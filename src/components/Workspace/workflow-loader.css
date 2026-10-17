@@ -4,7 +4,7 @@
   z-index: 1000;
   display: grid;
   place-items: center;
-  background: #050505;
+  background: var(--surface-050505);
   visibility: visible;
   opacity: 1;
   animation: wf-loader-appear 0.3s ease both;
@@ -25,10 +25,10 @@
   font-weight: 500;
   letter-spacing: 0.2em;
   padding-left: 0.2em;
-  color: #fff;
+  color: var(--text-ffffff);
   text-shadow:
-    0 0 13px #ffffff45,
-    0 0 40px #ffffff16;
+    0 0 13px var(--shadow-ffffff-271),
+    0 0 40px var(--shadow-ffffff-86);
 }
 .wf-loader-dots {
   display: flex;
@@ -42,9 +42,9 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--action-ffffff);
   opacity: 0.3;
-  box-shadow: 0 0 8px #ffffff30;
+  box-shadow: 0 0 8px var(--shadow-ffffff-188);
   animation: wf-loader-wave 1.25s ease-in-out infinite;
 }
 .wf-loader-dots span:nth-child(2) {

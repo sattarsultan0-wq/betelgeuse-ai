@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n/index';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LoaderCircle, Shield } from 'lucide-react';
@@ -6,6 +7,7 @@ import { api } from '../services/api';
 import Generator from '../components/Generator/Generator';
 
 export default function Admin() {
+  const { t } = useI18n();
   const { user, loading, setDialog } = useAuth();
   const [status, setStatus] = useState(null),
     [error, setError] = useState('');
@@ -30,19 +32,19 @@ export default function Admin() {
   if (!user)
     return (
       <section className="subpage container">
-        <h1>АДМИНКА</h1>
+        <h1>{t('АДМИНКА')}</h1>
         <button className="glass-button" onClick={() => setDialog('login')}>
-          Войти
+          {t('Войти')}
         </button>
       </section>
     );
   if (!user.isAdmin)
     return (
       <section className="subpage container">
-        <h1>Доступ ограничен</h1>
-        <p>Эта страница доступна администратору.</p>
+        <h1>{t('Доступ ограничен')}</h1>
+        <p>{t('Эта страница доступна администратору.')}</p>
         <Link to="/" className="glass-button">
-          На главную
+          {t('На главную')}
         </Link>
       </section>
     );
@@ -50,43 +52,45 @@ export default function Admin() {
     <>
       <section className="subpage container admin-page">
         <span className="eyebrow">
-          <Shield size={16} /> ДОСТУП АДМИНИСТРАТОРА
+          <Shield size={16} />
+          {t(' ДОСТУП АДМИНИСТРАТОРА')}
         </span>
-        <h1>СТУДИЯ SULTAN</h1>
+        <h1>{t('СТУДИЯ SULTAN')}</h1>
         <p className="muted">
-          Генерации без списания кредитов Betelgeuse. Higgsfield оплачивается с баланса вашего
-          API-аккаунта.
+          {t(
+            'Генерации без списания кредитов Betelgeuse. Higgsfield оплачивается с баланса вашего API-аккаунта.',
+          )}
         </p>
         {error && (
           <p className="error" role="alert">
-            {error}
+            {t(error)}
           </p>
         )}
         {status && (
           <div className="admin-status-grid">
             <article className="glass">
               <h2>Higgsfield</h2>
-              <p>{status.providerConfigured ? 'API подключён' : 'API ещё не настроен'}</p>
+              <p>{t(status.providerConfigured ? 'API подключён' : 'API ещё не настроен')}</p>
             </article>
             <article className="glass">
               <h2>Cloudflare R2</h2>
               <p>
-                {status.storageConfigured ? 'Хранилище настроено' : 'Хранилище ещё не настроено'}
+                {t(status.storageConfigured ? 'Хранилище настроено' : 'Хранилище ещё не настроено')}
               </p>
             </article>
             <article className="glass">
-              <h2>Кредиты</h2>
-              <p>Не списываются</p>
-              <small>Лимиты одновременных задач сохраняются.</small>
+              <h2>{t('Кредиты')}</h2>
+              <p>{t('Не списываются')}</p>
+              <small>{t('Лимиты одновременных задач сохраняются.')}</small>
             </article>
           </div>
         )}
         <div className="trend-actions">
           <Link className="glass-button" to="/#showcase">
-            Создать по тренду
+            {t('Создать по тренду')}
           </Link>
           <Link className="glass-button" to="/library">
-            История генераций
+            {t('История генераций')}
           </Link>
         </div>
       </section>

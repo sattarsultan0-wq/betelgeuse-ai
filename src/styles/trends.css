@@ -1,6 +1,7 @@
 /* Page layout only; cards and the modal are shared with VideoShowcase. */
 .trends-page {
-  background: radial-gradient(ellipse at 75% 0, #ffffff03, transparent 45%), #080808;
+  background:
+    radial-gradient(ellipse at 75% 0, var(--wash-ffffff-12), transparent 45%), var(--surface-080808);
 }
 .trends-heading .eyebrow {
   align-items: center;
@@ -15,7 +16,7 @@
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  color: #777;
+  color: var(--text-777777);
   font-size: 10px;
   margin-bottom: 22px;
 }
@@ -26,14 +27,14 @@
   gap: 16px;
   padding: 18px;
   margin-bottom: 26px;
-  background: #ffffff04;
-  border: 1px solid #ffffff1b;
+  background: var(--wash-ffffff-16);
+  border: 1px solid var(--border-ffffff-106);
   border-radius: 12px;
 }
 .trends-error p {
   margin: 0;
   font-size: 12px;
-  color: #bbb;
+  color: var(--text-bbbbbb);
 }
 .trends-error > button {
   margin-left: auto;
@@ -43,15 +44,15 @@
   aspect-ratio: 9 / 16;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #ffffff0b;
-  background: #151515;
+  border: 1px solid var(--border-ffffff-43);
+  background: var(--surface-151515);
 }
 .trends-skeleton::before {
   content: '';
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(100deg, transparent 15%, #ffffff07 50%, transparent 85%);
+  background: linear-gradient(100deg, transparent 15%, var(--wash-ffffff-27) 50%, transparent 85%);
   animation: trends-shimmer 1.8s ease-in-out infinite;
 }
 .trends-skeleton > span {
@@ -61,7 +62,7 @@
   width: 65%;
   height: 9px;
   border-radius: 5px;
-  background: #ffffff09;
+  background: var(--wash-ffffff-35);
 }
 .trends-skeleton > span:last-child {
   bottom: 15px;
@@ -76,7 +77,7 @@
   text-align: center;
   gap: 22px;
   min-height: 420px;
-  border: 1px dashed #ffffff15;
+  border: 1px dashed var(--border-ffffff-82);
   border-radius: 18px;
   padding: 40px 24px;
 }
@@ -85,11 +86,11 @@
   place-items: center;
   width: 78px;
   height: 78px;
-  border: 1px solid #ffffff24;
+  border: 1px solid var(--border-ffffff-141);
   border-radius: 50%;
-  background: radial-gradient(circle, #ffffff08, transparent);
-  box-shadow: 0 0 45px #ffffff06;
-  color: #ddd;
+  background: radial-gradient(circle, var(--wash-ffffff-31), transparent);
+  box-shadow: 0 0 45px var(--shadow-ffffff-24);
+  color: var(--text-dddddd);
 }
 .trends-empty h2 {
   font-size: clamp(24px, 3vw, 34px);
@@ -98,7 +99,7 @@
 }
 .trends-empty p {
   font-size: 12px;
-  color: #818181;
+  color: var(--text-818181);
   margin: 0;
 }
 @keyframes trends-shimmer {

@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n/index';
 import { useEffect, useState } from 'react';
 import { Menu, Sparkles } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
@@ -9,6 +10,7 @@ import StandardWorkflow from '../components/Workspace/StandardWorkflow';
 import WorkflowLoader from '../components/Workspace/WorkflowLoader';
 
 export default function WorkflowPage() {
+  const { t } = useI18n();
   const {
     billingLoading,
     setWorkflowReady,
@@ -95,14 +97,14 @@ export default function WorkflowPage() {
             <button
               type="button"
               className="icon-button wf-mobile-menu"
-              aria-label="Открыть навигацию"
+              aria-label={t('Открыть навигацию')}
               aria-expanded={mobileOpen}
               onClick={toggleMobileNavigation}
             >
               <Menu size={19} />
             </button>
-            <h1>WORKSPACE</h1>
-            <span className="wf-workspace-badge">ТВОЯ ТВОРЧЕСКАЯ ОРБИТА</span>
+            <h1>{t('WORKSPACE')}</h1>
+            <span className="wf-workspace-badge">{t('ТВОЯ ТВОРЧЕСКАЯ ОРБИТА')}</span>
           </div>
           <div className="wf-heading-actions">
             {mode === 'pro' && (
@@ -113,19 +115,19 @@ export default function WorkflowPage() {
                     ['queued', 'processing', 'uploading'].includes(item.status),
                   ).length
                 }{' '}
-                активных
+                {t('активных')}
               </span>
             )}
-            <div className="wf-mode-switch" role="group" aria-label="Интерфейс Workflow">
+            <div className="wf-mode-switch" role="group" aria-label={t('Интерфейс Workflow')}>
               <button
                 type="button"
                 aria-pressed={mode === 'standard'}
                 onClick={() => changeMode('standard')}
               >
-                Standard
+                {t('Standard')}
               </button>
               <button type="button" aria-pressed={mode === 'pro'} onClick={() => changeMode('pro')}>
-                Pro
+                {t('Pro')}
               </button>
             </div>
           </div>
@@ -142,13 +144,13 @@ export default function WorkflowPage() {
         </div>
         <div className="wf-mode-panel wf-pro-panel" hidden={mode !== 'pro'}>
           {mode === 'pro' && !professionalReady && (
-            <div className="wf-pro-loader" role="status" aria-label="Загрузка Professional">
+            <div className="wf-pro-loader" role="status" aria-label={t('Загрузка Professional')}>
               <div className="wf-loader-dots" aria-hidden="true">
                 <span />
                 <span />
                 <span />
               </div>
-              <span className="sr-only">Загрузка Professional…</span>
+              <span className="sr-only">{t('Загрузка Professional…')}</span>
             </div>
           )}
           <div

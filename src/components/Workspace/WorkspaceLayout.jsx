@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { Suspense, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { LoaderCircle, Menu } from 'lucide-react';
@@ -7,6 +8,7 @@ import Sidebar from './Sidebar';
 import '../../styles/workflow.css';
 
 export default function WorkspaceLayout() {
+  const { t } = useI18n();
   const { user } = useAuth();
   const { pathname } = useLocation();
   const isWorkflow = pathname.replace(/\/$/, '') === '/workflow';
@@ -91,7 +93,7 @@ export default function WorkspaceLayout() {
           <button
             type="button"
             className="icon-button wf-mobile-menu"
-            aria-label="Открыть навигацию"
+            aria-label={t('Открыть навигацию')}
             aria-expanded={mobileOpen}
             onClick={toggleMobileNavigation}
           >
@@ -102,7 +104,7 @@ export default function WorkspaceLayout() {
           fallback={
             <div className="wf-page-loading">
               <LoaderCircle className="spin" />
-              <p>Загрузка раздела…</p>
+              <p>{t('Загрузка раздела…')}</p>
             </div>
           }
         >

@@ -1,9 +1,11 @@
+import { useI18n } from '../../i18n/index';
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 function ModalContent({ title, children, onClose, className, showTitle }) {
+  const { t } = useI18n();
   const reduced = useReducedMotion();
   const ref = useRef(null),
     callback = useRef(onClose);
@@ -73,14 +75,14 @@ function ModalContent({ title, children, onClose, className, showTitle }) {
         }}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-label={t(title)}
         ref={ref}
         tabIndex={-1}
       >
-        <button className="icon-button modal-close" aria-label="Закрыть" onClick={onClose}>
+        <button className="icon-button modal-close" aria-label={t('Закрыть')} onClick={onClose}>
           <X size={20} />
         </button>
-        {showTitle && <h2>{title}</h2>}
+        {showTitle && <h2>{t(title)}</h2>}
         {children}
       </motion.section>
     </motion.div>

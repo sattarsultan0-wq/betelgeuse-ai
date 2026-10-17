@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/index';
 import { useRef } from 'react';
 import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, ArrowDown, Play } from 'lucide-react';
@@ -5,6 +6,7 @@ import { heroMedia } from '../../assets/media';
 import useInlineVideo from '../../hooks/useInlineVideo';
 import { useAuth } from '../../context/AuthContext';
 export default function Hero() {
+  const { t } = useI18n();
   const { requestAuth, loading } = useAuth();
   const ref = useRef(null);
   const reduced = useReducedMotion();
@@ -36,47 +38,55 @@ export default function Hero() {
         )}
       </motion.div>
       <div className="hero-overlay" />
-      
+
       <motion.div
         className="hero-content"
         initial={{ opacity: 0, y: 28 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="hero-label">ИЗ ВООБРАЖЕНИЯ — В РЕАЛЬНОСТЬ</div>
+        <div className="hero-label">{t('ИЗ ВООБРАЖЕНИЯ — В РЕАЛЬНОСТЬ')}</div>
         <h1>
-          СОЗДАВАЙ ВИДЕО,
+          {t('СОЗДАВАЙ ВИДЕО,')}
           <br />
-          КОТОРЫЕ СТАНОВЯТСЯ
+          {t('КОТОРЫЕ СТАНОВЯТСЯ')}
           <br />
-          <span>ТРЕНДАМИ.</span>
+          <span>{t('ТРЕНДАМИ.')}</span>
         </h1>
         <p>
-          Превращай идеи, фотографии и текст в невероятные
-          <br className="desktop-break" /> видео с помощью искусственного интеллекта.
+          {t('Превращай идеи, фотографии и текст в невероятные')}
+          <br className="desktop-break" />
+          {t(' видео с помощью искусственного интеллекта.')}
         </p>
         <div className="hero-buttons">
-          <button className="glass-button primary" disabled={loading} onClick={() => requestAuth('login', '/workflow')}>
-            Начать создавать
+          <button
+            className="glass-button primary"
+            disabled={loading}
+            onClick={() => requestAuth('login', '/workflow')}
+          >
+            {t('Начать создавать')}
             <ArrowUpRight size={19} />
           </button>
           <a className="glass-button" href="#showcase">
             <Play size={15} />
-            Смотреть примеры
+            {t('Смотреть примеры')}
           </a>
         </div>
       </motion.div>
       <div className="hero-bottom">
         {video.blocked && (
           <button className="glass-button compact hero-video-start" onClick={video.play}>
-            <Play size={14} /> Включить фоновое видео
+            <Play size={14} />
+            {t(' Включить фоновое видео')}
           </button>
         )}
         <a href="#showcase" className="scroll-indicator">
           <ArrowDown size={18} />
-          <span>ЛИСТАЙ. ВДОХНОВЛЯЙСЯ.</span>
+          <span>{t('ЛИСТАЙ. ВДОХНОВЛЯЙСЯ.')}</span>
         </a>
-        <span className="hero-caption"><span>Одна платформа. Твоё воображение.</span></span>
+        <span className="hero-caption">
+          <span>{t('Одна платформа. Твоё воображение.')}</span>
+        </span>
         <span className="edition">01 — ∞</span>
       </div>
     </section>
