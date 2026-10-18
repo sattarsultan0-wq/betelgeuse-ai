@@ -5,6 +5,17 @@ import { apiUrl } from '../../services/api';
 import { loadWorkflowAsset } from '../../services/workflow-assets';
 import { modeLabels, modelOptions } from '../../services/workflow-options';
 import ModelIdentity from './ModelIdentity';
+import useGenerationPrice from '../../hooks/useGenerationPrice';
+import GenerationPrice from '../Pricing/GenerationPrice';
+
+function ModelPrice({ body }) {
+  const { quote } = useGenerationPrice(body);
+  return (
+    <small className="wf-editor-field-wide" aria-live="polite">
+      <GenerationPrice quote={quote} />
+    </small>
+  );
+}
 
 function NodeMedia({ node }) {
   const { t } = useI18n();
@@ -85,6 +96,7 @@ function ModelControls({ node, model, onChange }) {
   const change = (update) => onChange(node.id, { configuration: { ...options, mode, ...update } });
   return (
     <div className="wf-editor-model-controls" data-canvas-interactive>
+      <ModelPrice body={{ model: model.id, mode, ...options }} />
       <label className="wf-editor-field wf-editor-field-wide">
         {t('Режим')}
         <select

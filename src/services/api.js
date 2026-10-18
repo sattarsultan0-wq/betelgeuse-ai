@@ -12,10 +12,11 @@ function apiError(response, data) {
   error.status = response.status;
   error.code = data.code;
   error.reason = data.reason;
-  if (
-    error.code === 'CSRF' &&
-    ['COOKIE_MISSING', 'COOKIE_INVALID'].includes(error.reason)
-  ) {
+  if (error.code === 'PRICE_CHANGED') {
+    error.currentQuote = data.currentQuote;
+    window.dispatchEvent(new Event('betelgeuse:pricing-changed'));
+  }
+  if (error.code === 'CSRF' && ['COOKIE_MISSING', 'COOKIE_INVALID'].includes(error.reason)) {
     error.code = 'CSRF_COOKIE_UNAVAILABLE';
     error.message =
       'Не удалось установить защищённое соединение: браузер не передаёт cookie сайта. Обратитесь в поддержку.';
@@ -86,12 +87,7 @@ export async function api(path, options = {}) {
     const response = await request(url, { ...options, method, headers, body });
     const data = await response.json().catch(() => ({}));
     if (response.ok) return data;
-    if (
-      mutation &&
-      response.status === 403 &&
-      data.code === 'CSRF' &&
-      data.reason !== 'ORIGIN'
-    ) {
+    if (mutation && response.status === 403 && data.code === 'CSRF' && data.reason !== 'ORIGIN') {
       // The CSRF middleware rejected this request before any mutation. Retry at most once.
       // Do not erase a newer token already refreshed by another concurrent request.
       if (csrfToken === token) csrfToken = undefined;
@@ -123,8 +119,7 @@ export async function downloadImage(id) {
   if (!response.ok) throw new Error('Не удалось скачать изображение');
   const blob = await response.blob();
   const extension =
-    { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[blob.type] ||
-    'image';
+    { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[blob.type] || 'image';
   const url = URL.createObjectURL(blob),
     link = document.createElement('a');
   link.href = url;

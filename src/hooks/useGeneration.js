@@ -96,8 +96,9 @@ export function useGeneration(userId, scope = null) {
     setError('');
     setPhase(file ? 'uploading' : 'queued');
     try {
+      const { priceConfirmation, ...generationValues } = values;
       const fingerprint =
-        JSON.stringify(values) + `:${file?.name}:${file?.size}:${file?.lastModified}`;
+        JSON.stringify(generationValues) + `:${file?.name}:${file?.size}:${file?.lastModified}`;
       if (!pending.current || pending.current.fingerprint !== fingerprint)
         pending.current = { fingerprint, key: crypto.randomUUID(), body: null };
       if (!pending.current.body) {
@@ -110,6 +111,8 @@ export function useGeneration(userId, scope = null) {
         }
         pending.current.body = body;
       }
+      // An updated quote never changes the key of a potentially accepted job.
+      pending.current.body.priceConfirmation = priceConfirmation;
       const data = await api('/generations', {
         method: 'POST',
         headers: { 'Idempotency-Key': pending.current.key },
@@ -128,7 +131,7 @@ export function useGeneration(userId, scope = null) {
       submitting.current = false;
     }
   }
-  async function submitTrend(trendId, files) {
+  async function submitTrend(trendId, files, priceConfirmation) {
     if (submitting.current) return;
     submitting.current = true;
     const owner = identity.current;
@@ -151,6 +154,8 @@ export function useGeneration(userId, scope = null) {
         remember({ pending: pending.current });
       }
       setPhase('queued');
+      pending.current.body.priceConfirmation = priceConfirmation;
+      remember({ pending: pending.current });
       const { generation } = await api('/trends/generations', {
         method: 'POST',
         headers: { 'Idempotency-Key': pending.current.key },

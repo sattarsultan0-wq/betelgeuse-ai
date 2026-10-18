@@ -20,6 +20,10 @@ import {
 import { api, downloadVideo } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useGeneration } from '../../hooks/useGeneration';
+import useGenerationPrice from '../../hooks/useGenerationPrice';
+import { generationPriceLabel } from '../../services/pricing';
+import GenerationPrice from '../Pricing/GenerationPrice';
+import { modelOptions } from '../../services/workflow-options';
 const statuses = {
   idle: 'Всё начинается с идеи',
   uploading: 'Загружаем изображение',
@@ -56,6 +60,10 @@ export default function Generator() {
     select = useRef(null);
   const model = models.find((item) => item.id === modelId),
     capabilities = model?.modes?.[mode];
+  const normalized = modelOptions(capabilities, { duration, quality, aspectRatio });
+  const { quote } = useGenerationPrice(
+    user && capabilities ? { model: modelId, mode, ...normalized } : null,
+  );
   useEffect(() => {
     const controller = new AbortController();
     api('/models', { signal: controller.signal })
@@ -143,10 +151,6 @@ export default function Generator() {
       textarea.current?.focus();
       return;
     }
-    if (!user.isAdmin) {
-      setError('Генерация доступна только администратору.');
-      return;
-    }
     if (mode === 'IMAGE_TO_VIDEO' && !file) {
       setError('Добавь изображение для этого режима.');
       return;
@@ -155,13 +159,22 @@ export default function Generator() {
       setError('Генерация этой моделью пока недоступна.');
       return;
     }
+    if (quote?.status !== 'AVAILABLE' || !quote.canGenerate) {
+      setError('Цена не указана');
+      return;
+    }
     await submit(
-      { model: modelId, prompt: prompt.trim(), mode, aspectRatio, duration, quality },
+      {
+        model: modelId,
+        prompt: prompt.trim(),
+        mode,
+        ...normalized,
+        priceConfirmation: quote.priceConfirmation,
+      },
       mode === 'IMAGE_TO_VIDEO' ? file : null,
     );
     refresh().catch(() => {});
   }
-  const cost = model?.creditCosts?.[duration] ?? null;
   return (
     <section className="generator section container" id="generator">
       <div className="section-heading">
@@ -392,7 +405,7 @@ export default function Generator() {
           <button
             className="glass-button primary generate-button"
             onClick={generate}
-            disabled={busy || (!!user && (!user.isAdmin || !model?.available))}
+            disabled={busy || (!!user && (!model?.available || !quote?.canGenerate))}
           >
             {busy ? <LoaderCircle size={18} className="spin" /> : <Sparkles size={18} />}{' '}
             {t(busy ? statuses[phase] : 'СГЕНЕРИРОВАТЬ ВИДЕО')}
@@ -408,18 +421,14 @@ export default function Generator() {
                   : 'Войди, чтобы начать создавать',
               )}
             </span>
-            <span>
-              {t(user?.isAdmin ? 0 : (cost ?? '—'))}
-              {t(' ед. квоты / ')}
-              {t(duration)}
-              {t(' сек')}
-            </span>
+            <GenerationPrice quote={quote} />
           </div>
         </div>
         <aside
           className={`result-panel glass ${generation?.status === 'completed' ? 'has-result' : ''}`}
           aria-live="polite"
         >
+          {generation && <small>{generationPriceLabel(generation, t)}</small>}
           {generation?.status === 'completed' && generation.resultVideoUrl ? (
             <>
               <video controls playsInline src={generation.resultVideoUrl} preload="metadata" />

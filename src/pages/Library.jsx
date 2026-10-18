@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { generationLabels } from '../components/Workspace/InteractiveCanvas';
 import MediaPreview from '../components/Workspace/MediaPreview';
 import MaterialDialog from '../components/Workspace/MaterialDialog';
+import { generationPriceLabel } from '../services/pricing';
 
 export default function Library() {
   const { t, locale } = useI18n();
@@ -140,6 +141,7 @@ export default function Library() {
                 </div>
               )}
               <h2>{item.prompt || item.name}</h2>
+              {item.kind !== 'image' && <small>{generationPriceLabel(item, t)}</small>}
               <div className="wf-library-card-meta">
                 <small>
                   {t(new Date(item.createdAt).toLocaleDateString(locale))}

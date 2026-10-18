@@ -170,7 +170,7 @@
 }
 .wf-pro-models-popover {
   position: relative;
-  height: 70px;
+  height: 96px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -179,7 +179,7 @@
 .wf-pro-model-strip {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 38px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
@@ -187,7 +187,7 @@
   -webkit-overflow-scrolling: touch;
   min-width: 0;
   flex: 1;
-  padding: 6px 18px;
+  padding: 6px 18px 26px;
   scroll-padding-inline: 20px;
   user-select: none;
   cursor: grab;
@@ -224,6 +224,16 @@
   place-items: center;
   background: var(--wash-ffffff-16);
   transition: transform 0.18s ease;
+}
+.wf-pro-model-price {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--text-a5a5a5);
 }
 .wf-pro-model-option::before {
   content: '';

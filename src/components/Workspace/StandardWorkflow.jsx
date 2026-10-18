@@ -2,6 +2,9 @@ import { useI18n } from '../../i18n/index';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, ImagePlus, Sparkles, X } from 'lucide-react';
 import { api } from '../../services/api';
+import { priceLabel, generationPriceLabel } from '../../services/pricing';
+import useGenerationPrice from '../../hooks/useGenerationPrice';
+import GenerationPrice from '../Pricing/GenerationPrice';
 import MediaPreview from './MediaPreview';
 import MaterialDialog from './MaterialDialog';
 import GenerationPending, { FrameTracing, isGenerationActive } from './GenerationPending';
@@ -27,8 +30,6 @@ export default function StandardWorkflow({
     [prompt, setPrompt] = useState('');
   const [options, setOptions] = useState({ parameters: {} }),
     [attachments, setAttachments] = useState({});
-  const [quote, setQuote] = useState(null),
-    [quoteError, setQuoteError] = useState('');
   const [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [uploading, setUploading] = useState(false);
@@ -69,39 +70,26 @@ export default function StandardWorkflow({
   const model = available.find((item) => item.id === modelId) || available[0];
   const caps = model?.modes[mode];
   const normalized = useMemo(() => modelOptions(caps, options), [caps, options]);
-  const estimateBody = model ? { model: model.id, mode, ...normalized } : null;
-  const quoteKey = JSON.stringify(estimateBody);
-  const currentQuote = quote?.key === quoteKey ? quote : null;
+  const videoReferences = (caps?.references || [])
+    .filter((rule) => rule.type === 'video')
+    .flatMap((rule) =>
+      (attachments[`${model.id}:${mode}:${rule.role}`] || [])
+        .filter((entry) => entry.uploadId)
+        .map((entry) => ({ role: rule.role, uploadId: entry.uploadId })),
+    );
+  const estimateBody = model
+    ? {
+        model: model.id,
+        mode,
+        ...normalized,
+        ...(videoReferences.length ? { references: videoReferences } : {}),
+      }
+    : null;
+  const { quote: currentQuote, error: quoteError } = useGenerationPrice(estimateBody);
   const locked = uploading || generation.submitting || generation.pendingRequest;
   useEffect(() => {
     if (!modes.includes(mode) && modes.length) setMode(modes[0]);
   }, [modes.join(','), mode]);
-  useEffect(() => {
-    setQuoteError('');
-    setQuote(null);
-    if (!model) {
-      setQuote(null);
-      return;
-    }
-    const controller = new AbortController();
-    const timer = setTimeout(() => {
-      api('/generations/estimate', {
-        method: 'POST',
-        body: JSON.parse(quoteKey),
-        signal: controller.signal,
-      })
-        .then((value) => {
-          if (!controller.signal.aborted) setQuote({ ...value, key: quoteKey });
-        })
-        .catch((err) => {
-          if (err.name !== 'AbortError') setQuoteError(err.message);
-        });
-    }, 250);
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [quoteKey, user.generationCredits, user.isAdmin]);
 
   function updateSelection(change) {
     if (locked) return;
@@ -109,7 +97,7 @@ export default function StandardWorkflow({
     setError('');
     setNotice('');
   }
-  function pickFiles(rule, selected) {
+  async function pickFiles(rule, selected) {
     const files = [...selected];
     const message = validateReferenceFiles(rule, files);
     if (message) {
@@ -117,20 +105,39 @@ export default function StandardWorkflow({
       return;
     }
     setError('');
+    const key = `${model.id}:${mode}:${rule.role}`;
+    const entries = files.map((file) => ({ file, id: crypto.randomUUID() }));
     setAttachments((current) => ({
       ...current,
-      [`${model.id}:${mode}:${rule.role}`]: files.map((file) => ({
-        file,
-        id: crypto.randomUUID(),
-      })),
+      [key]: entries,
     }));
+    if (rule.type !== 'video') return;
+    // Upload video before quoting so billing uses server-inspected duration.
+    setUploading(true);
+    try {
+      for (const entry of entries) {
+        const form = new FormData();
+        form.append('file', entry.file);
+        const { image } = await api('/uploads/references', { method: 'POST', body: form });
+        setAttachments((current) => ({
+          ...current,
+          [key]: (current[key] || []).map((item) =>
+            item.id === entry.id ? { ...item, uploadId: image.id } : item,
+          ),
+        }));
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploading(false);
+    }
   }
   const canGenerate =
     !modelsLoading &&
     !locked &&
     model?.available &&
     currentQuote?.canGenerate &&
-    ['configured', 'admin_test'].includes(currentQuote.status) &&
+    currentQuote.status === 'AVAILABLE' &&
     currentQuote.sufficientBalance;
   async function submit(event) {
     event.preventDefault();
@@ -175,6 +182,7 @@ export default function StandardWorkflow({
         ...estimateBody,
         prompt: prompt.trim(),
         references,
+        priceConfirmation: currentQuote.priceConfirmation,
       });
       if (result) setNotice('Запрос принят. Результат появится в рабочей области.');
     } catch (err) {
@@ -267,7 +275,7 @@ export default function StandardWorkflow({
                 {!available.length && <option value="">{t('Нет совместимых моделей')}</option>}
                 {available.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.name}
+                    {item.name} · {priceLabel(item.pricing, t)}
                   </option>
                 ))}
               </select>
@@ -405,20 +413,7 @@ export default function StandardWorkflow({
             <div className="wf-standard-cost">
               <span>{t('Стоимость генерации')}</span>
               <strong>
-                {t(
-                  currentQuote?.adminTest
-                    ? t('{{v0}} · списание 0', {
-                        v0:
-                          currentQuote.baseCredits == null
-                            ? t('Тест ADMIN')
-                            : t('{{v0}} кр.', { v0: currentQuote.baseCredits }),
-                      })
-                    : currentQuote?.status === 'configured'
-                      ? `${currentQuote.credits} кр.`
-                      : currentQuote?.status === 'unconfigured'
-                        ? 'Не настроена'
-                        : '—',
-                )}
+                <GenerationPrice quote={currentQuote} />
               </strong>
             </div>
             <div className="wf-standard-actions">
@@ -439,14 +434,7 @@ export default function StandardWorkflow({
                 <ArrowUpRight size={14} aria-hidden="true" />
               </button>
             </div>
-            {!user.isAdmin && (
-              <p className="wf-composer-note">
-                {t(
-                  'Генерация доступна только администратору. Можно подготовить промпт и параметры.',
-                )}
-              </p>
-            )}
-            {user.isAdmin && currentQuote?.status === 'unconfigured' && (
+            {currentQuote?.status === 'PRICE_UNAVAILABLE' && (
               <p className="wf-composer-note">
                 {t('Генерация станет доступна после настройки стоимости.')}
               </p>
@@ -454,27 +442,28 @@ export default function StandardWorkflow({
             {model && !model.available && (
               <p className="wf-composer-note">{t('Сервис генерации пока не подключён.')}</p>
             )}
-            {user.isAdmin && currentQuote && !currentQuote.storageAvailable && (
+            {currentQuote && !currentQuote.storageAvailable && (
               <p className="wf-composer-note">{t('Хранилище результатов R2 не подключено.')}</p>
             )}
-            {user.isAdmin &&
-              currentQuote?.status === 'configured' &&
-              !currentQuote.sufficientBalance && (
-                <p className="wf-composer-note">{t('Недостаточно кредитов.')}</p>
-              )}
+            {currentQuote?.status === 'AVAILABLE' && !currentQuote.sufficientBalance && (
+              <p className="wf-composer-note">{t('Недостаточно кредитов.')}</p>
+            )}
             {generation.pendingRequest && (
               <div className="wf-composer-pending" role="status">
                 <span>{t('Ответ не подтверждён.')}</span>
                 <button
                   type="button"
                   className="text-button"
-                  disabled={generation.submitting}
+                  disabled={
+                    generation.submitting ||
+                    (generation.priceChanged && !currentQuote?.priceConfirmation)
+                  }
                   onClick={async () => {
-                    const result = await generation.retry();
+                    const result = await generation.retry(currentQuote?.priceConfirmation);
                     if (result) setNotice('Запрос подтверждён.');
                   }}
                 >
-                  {t('Повторить проверку')}
+                  {t(generation.priceChanged ? 'Подтвердить новую цену' : 'Повторить проверку')}
                 </button>
               </div>
             )}
@@ -540,6 +529,7 @@ export default function StandardWorkflow({
                       <MediaPreview item={item} onOpen={setMaterial} />
                     ))}
                   <p className="wf-generation-result-prompt">{item.prompt}</p>
+                  <small>{generationPriceLabel(item, t)}</small>
                   {item.errorMessage && (
                     <p className="wf-composer-error" role="alert">
                       {t(item.errorMessage)}

@@ -657,5 +657,13 @@
   "off": "Off",
   "on": "On",
   "image": "Image",
-  "video": "Video"
+  "video": "Video",
+  "Цена не указана": "Price not set",
+  "Списано {{v0}} кр.": "Charged {{v0}} cr.",
+  "Подтвердить новую цену": "Confirm new price",
+  "Скидка {{percent}}%": "{{percent}}% discount",
+  "Скидка {{percent}}% на генерации": "{{percent}}% off generations",
+  "Платежи пока не подключены.": "Payments are not available yet.",
+  "Покупка подписки пока недоступна. Скидка применяется к активной подписке аккаунта.": "Subscription purchases are not available yet. Discounts apply to your account's active subscription.",
+  "Цена изменилась. Проверьте стоимость и нажмите Generate ещё раз.": "The price has changed. Review the cost and click Generate again."
 }

@@ -4,6 +4,7 @@ import { Download } from 'lucide-react';
 import Modal from '../UI/Modal';
 import { downloadImage, downloadVideo } from '../../services/api';
 import GenerationPending, { FrameTracing, isGenerationActive } from './GenerationPending';
+import { generationPriceLabel } from '../../services/pricing';
 
 export default function MaterialDialog({ item, onClose }) {
   const { t, locale } = useI18n();
@@ -48,6 +49,7 @@ export default function MaterialDialog({ item, onClose }) {
             <p className="muted">{t('Материал ещё не готов.')}</p>
           )}
           <p className="wf-material-prompt">{item.prompt || item.name}</p>
+          {item.kind !== 'image' && <small>{generationPriceLabel(item, t)}</small>}
           <div className="wf-material-meta">
             <span>{t(new Date(item.createdAt).toLocaleString(locale))}</span>
             {image &&

@@ -7,19 +7,10 @@ import { joinApiPath, resolveApiBase } from '../src/services/api-url.js';
 test('development proxy and absolute backend origins preserve API paths once', () => {
   assert.equal(resolveApiBase(''), '/api');
   assert.equal(resolveApiBase('/api/'), '/api');
-  for (const value of [
-    'https://backend.example.test',
-    'https://backend.example.test/api/',
-  ]) {
+  for (const value of ['https://backend.example.test', 'https://backend.example.test/api/']) {
     const base = resolveApiBase(value, { production: true });
-    assert.equal(
-      joinApiPath(base, '/auth/me'),
-      'https://backend.example.test/api/auth/me',
-    );
-    assert.equal(
-      joinApiPath(base, '/api/auth/me'),
-      'https://backend.example.test/api/auth/me',
-    );
+    assert.equal(joinApiPath(base, '/auth/me'), 'https://backend.example.test/api/auth/me');
+    assert.equal(joinApiPath(base, '/api/auth/me'), 'https://backend.example.test/api/auth/me');
     assert.equal(
       joinApiPath(base, '/api/users/me?page=2'),
       'https://backend.example.test/api/users/me?page=2',
@@ -70,9 +61,7 @@ test('client sends CSRF, JSON, file uploads and cookies to the configured backen
   globalThis.fetch = async (url, options) => {
     calls.push({ url, options });
     return new Response(
-      JSON.stringify(
-        url.endsWith('/auth/csrf') ? { token: 'a'.repeat(64) } : { ok: true },
-      ),
+      JSON.stringify(url.endsWith('/auth/csrf') ? { token: 'a'.repeat(64) } : { ok: true }),
       {
         headers: { 'Content-Type': 'application/json' },
       },
@@ -123,8 +112,7 @@ test('blocked cookies stop login before any mutation and expose an actionable er
   globalThis.fetch = async (url) => {
     calls.push(url);
     if (url.endsWith('/csrf')) return json({ token: 'a'.repeat(64) });
-    if (url.endsWith('/csrf/check'))
-      return json({ code: 'CSRF', reason: 'COOKIE_MISSING' }, 403);
+    if (url.endsWith('/csrf/check')) return json({ code: 'CSRF', reason: 'COOKIE_MISSING' }, 403);
     assert.fail('A blocked cookie must not reach login');
   };
   try {
@@ -146,8 +134,7 @@ test('one stale-token rejection refreshes CSRF and preserves body and idempotenc
     mutations = 0;
   globalThis.fetch = async (url, options) => {
     calls.push({ url, ...options, headers: { ...options.headers } });
-    if (url.endsWith('/csrf'))
-      return json({ token: (++issued === 1 ? 'a' : 'b').repeat(64) });
+    if (url.endsWith('/csrf')) return json({ token: (++issued === 1 ? 'a' : 'b').repeat(64) });
     if (url.endsWith('/csrf/check')) return json({ ok: true });
     return ++mutations === 1
       ? json({ code: 'CSRF', reason: 'TOKEN_MISMATCH' }, 403)
@@ -169,13 +156,10 @@ test('one stale-token rejection refreshes CSRF and preserves body and idempotenc
     assert.ok(
       posts.every(
         (call) =>
-          call.headers['Idempotency-Key'] === 'same-request' &&
-          call.body === JSON.stringify(body),
+          call.headers['Idempotency-Key'] === 'same-request' && call.body === JSON.stringify(body),
       ),
     );
-    assert.ok(
-      calls.every((call) => call.cache === 'no-store' && call.credentials === 'include'),
-    );
+    assert.ok(calls.every((call) => call.cache === 'no-store' && call.credentials === 'include'));
   } finally {
     globalThis.fetch = original;
   }
@@ -204,10 +188,7 @@ test('concurrent mutations share token acquisition and verification', async () =
       api('/uploads', { method: 'POST' }),
       api('/generations', { method: 'POST' }),
     ]);
-    assert.deepEqual(
-      { issued, checked, mutations },
-      { issued: 1, checked: 1, mutations: 2 },
-    );
+    assert.deepEqual({ issued, checked, mutations }, { issued: 1, checked: 1, mutations: 2 });
   } finally {
     globalThis.fetch = original;
   }
@@ -256,8 +237,7 @@ test('initial multi-tab cookie race can recheck once without submitting a mutati
     checked = 0,
     mutations = 0;
   globalThis.fetch = async (url) => {
-    if (url.endsWith('/csrf'))
-      return json({ token: (++issued === 1 ? 'a' : 'b').repeat(64) });
+    if (url.endsWith('/csrf')) return json({ token: (++issued === 1 ? 'a' : 'b').repeat(64) });
     if (url.endsWith('/csrf/check'))
       return ++checked === 1
         ? json({ code: 'CSRF', reason: 'TOKEN_MISMATCH' }, 403)
@@ -268,11 +248,46 @@ test('initial multi-tab cookie race can recheck once without submitting a mutati
   try {
     const { api } = await client('/api', true);
     await api('/auth/login', { method: 'POST' });
-    assert.deepEqual(
-      { issued, checked, mutations },
-      { issued: 2, checked: 2, mutations: 1 },
-    );
+    assert.deepEqual({ issued, checked, mutations }, { issued: 2, checked: 2, mutations: 1 });
   } finally {
     globalThis.fetch = original;
+  }
+});
+
+test('changed generation price refreshes the displayed quote without automatically retrying a debit', async () => {
+  const originalFetch = globalThis.fetch,
+    originalWindow = globalThis.window;
+  const events = [];
+  let mutations = 0;
+  const currentQuote = {
+    status: 'AVAILABLE',
+    credits: 8,
+    baseCredits: 9,
+    discountPercent: 11,
+    priceConfirmation: 'b'.repeat(64),
+  };
+  globalThis.window = { dispatchEvent: (event) => events.push(event.type) };
+  globalThis.fetch = async (url) => {
+    if (url.endsWith('/csrf')) return json({ token: 'a'.repeat(64) });
+    if (url.endsWith('/csrf/check')) return json({ ok: true });
+    mutations++;
+    return json({ code: 'PRICE_CHANGED', message: 'Price changed', currentQuote }, 409);
+  };
+  try {
+    const { api } = await client('/api', true);
+    await assert.rejects(
+      api('/generations', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': 'unchanged-key' },
+        body: { priceConfirmation: 'old-quote' },
+      }),
+      (error) =>
+        error.code === 'PRICE_CHANGED' && error.status === 409 && error.currentQuote.credits === 8,
+    );
+    assert.equal(mutations, 1);
+    assert.deepEqual(events, ['betelgeuse:pricing-changed']);
+  } finally {
+    globalThis.fetch = originalFetch;
+    globalThis.window = originalWindow;
   }
 });

@@ -11,14 +11,14 @@ import {
   X,
 } from 'lucide-react';
 import { workspaceModels } from '../../assets/aiModels';
+import useGenerationPrice from '../../hooks/useGenerationPrice';
+import { priceLabel } from '../../services/pricing';
+import GenerationPrice from '../Pricing/GenerationPrice';
 
 const modeNames = { TEXT_TO_VIDEO: 'Текст → Видео', IMAGE_TO_VIDEO: 'Фото → Видео' };
 function modelDescription(item, t) {
   if (item.provider) return t('{{v0}} · провайдер Kling / Seedance', { v0: t(item.type) });
-  const costs = Object.values(item.api?.creditCosts || {}).filter(
-    (value) => Number.isInteger(value) && value >= 0,
-  );
-  return `${t(item.type)} · ${costs.length ? t('от {{v0}} кр.', { v0: Math.min(...costs) }) : t('Стоимость не настроена')}`;
+  return `${t(item.type)} · ${priceLabel(item.api?.pricing, t)}`;
 }
 
 export default function PromptComposer({
@@ -54,16 +54,26 @@ export default function PromptComposer({
   const model = catalog.find((item) => item.id === modelId) || catalog[0],
     apiModel = model?.api,
     capabilities = apiModel?.modes?.[mode];
-  const baseCost = capabilities ? apiModel?.creditCosts?.[duration] : null;
-  const configured = Number.isInteger(baseCost) && baseCost >= 0;
-  const cost = configured ? (user.isAdmin ? 0 : baseCost) : null;
+  const { quote, error: quoteError } = useGenerationPrice(
+    capabilities
+      ? {
+          model: apiModel.id,
+          mode,
+          duration,
+          quality,
+          aspectRatio,
+        }
+      : null,
+  );
+  const configured = quote?.status === 'AVAILABLE';
+  const cost = configured ? quote.credits : null;
   const insufficient = cost != null && !user.isAdmin && (user.generationCredits ?? 0) < cost;
   const locked = submitting || pendingRequest;
   const canSubmit =
-    user.isAdmin &&
     !loading &&
     !locked &&
     apiModel?.available &&
+    quote?.canGenerate &&
     configured &&
     capabilities &&
     !insufficient;
@@ -150,7 +160,15 @@ export default function PromptComposer({
       return;
     }
     await onSubmit(
-      { model: apiModel.id, prompt: prompt.trim(), mode, duration, quality, aspectRatio },
+      {
+        model: apiModel.id,
+        prompt: prompt.trim(),
+        mode,
+        duration,
+        quality,
+        aspectRatio,
+        priceConfirmation: quote.priceConfirmation,
+      },
       mode === 'IMAGE_TO_VIDEO' ? file : null,
       source?.id,
     );
@@ -244,7 +262,7 @@ export default function PromptComposer({
             <span>
               {model.name}
               <small>
-                {t(model.type)} · {t(cost == null ? 'Стоимость не настроена' : `${cost} кр.`)}
+                {t(model.type)} · {priceLabel(quote, t)}
               </small>
             </span>
             <ChevronDown size={14} />
@@ -316,7 +334,9 @@ export default function PromptComposer({
         <button className="glass-button primary wf-create-button" disabled={!canSubmit}>
           {submitting ? <LoaderCircle className="spin" size={17} /> : <Sparkles size={17} />}
           <span>{t(submitting ? 'Отправляем…' : 'Создать')}</span>
-          <small>{t(cost != null ? `${cost} кр.` : '—')}</small>
+          <small>
+            <GenerationPrice quote={quote} />
+          </small>
           <ArrowUpRight size={16} />
         </button>
       </div>
@@ -407,9 +427,9 @@ export default function PromptComposer({
           </button>
         </div>
       )}
-      {(error || modelError) && (
+      {(error || modelError || quoteError) && (
         <p className="wf-composer-error" role="alert">
-          {t(error || modelError)}
+          {t(error || modelError || quoteError)}
         </p>
       )}
       {!modelError && !apiModel?.available && (

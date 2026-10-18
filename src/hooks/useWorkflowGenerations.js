@@ -21,6 +21,7 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
     [error, setError] = useState(''),
     [submitting, setSubmitting] = useState(false),
     [pendingRequest, setPendingRequest] = useState(false);
+  const [priceChanged, setPriceChanged] = useState(false);
   const pending = useRef(null),
     busy = useRef(false),
     epoch = useRef(0),
@@ -36,6 +37,7 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
     busy.current = false;
     setSubmitting(false);
     setPendingRequest(false);
+    setPriceChanged(false);
     try {
       const cached = JSON.parse(sessionStorage.getItem(pendingKey(requestOwner)));
       if (cached?.key && cached?.body && cached?.nodeId) {
@@ -133,6 +135,7 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
     busy.current = true;
     setSubmitting(true);
     setError('');
+    setPriceChanged(false);
     setItems((rows) =>
       rows.map((row) =>
         row.id === request.nodeId
@@ -179,13 +182,16 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
       // Retain the original key until the accepted task is positively confirmed.
       const uncertain = request.uncertain || !err.status || err.status >= 500;
       setItems((rows) =>
-        rows.map((row) =>
-          row.id === request.nodeId
-            ? { ...row, status: 'failed', requestPending: uncertain, errorMessage: err.message }
-            : row,
-        ),
+        err.code === 'PRICE_CHANGED' && !uncertain
+          ? rows.filter((row) => row.id !== request.nodeId)
+          : rows.map((row) =>
+              row.id === request.nodeId
+                ? { ...row, status: 'failed', requestPending: uncertain, errorMessage: err.message }
+                : row,
+            ),
       );
       setError(err.message);
+      setPriceChanged(err.code === 'PRICE_CHANGED');
       setPendingRequest(uncertain);
       if (uncertain) {
         request.uncertain = true;
@@ -234,7 +240,12 @@ export default function useWorkflowGenerations(userId, refresh, scope = '') {
     error,
     submitting,
     pendingRequest,
+    priceChanged,
     submit,
-    retry: () => sendPending(pending.current?.file),
+    retry: (confirmation) => {
+      if (pending.current && typeof confirmation === 'string')
+        pending.current.body.priceConfirmation = confirmation;
+      return sendPending(pending.current?.file);
+    },
   };
 }

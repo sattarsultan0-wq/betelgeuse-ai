@@ -59,6 +59,14 @@
   font-weight: 800;
   color: var(--text-ffffff);
 }
+.home-model-price {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
+}
 .home-models-item-seedance .home-models-mark {
   border-radius: 50%;
 }

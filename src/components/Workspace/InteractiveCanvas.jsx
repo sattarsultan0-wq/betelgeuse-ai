@@ -17,6 +17,7 @@ import MediaPreview from './MediaPreview';
 import GenerationPending, { FrameTracing, isGenerationActive } from './GenerationPending';
 import WorkflowNode from './WorkflowNode';
 import { placeNode } from '../../services/workflow-board';
+import { generationPriceLabel } from '../../services/pricing';
 
 export const generationLabels = {
   uploading: 'Загружаем изображение',
@@ -123,6 +124,7 @@ function GenerationNode({
       )}
       <p className="wf-node-prompt">{item.prompt}</p>
       <div className="wf-node-meta">
+        <span>{generationPriceLabel(item, t)}</span>
         <span>
           {t(item.duration ? `${item.duration} сек` : 'Image')} ·{' '}
           {t(item.aspectRatio === 'source' ? 'По изображению' : item.aspectRatio)}

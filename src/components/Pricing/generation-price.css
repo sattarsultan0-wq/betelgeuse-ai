@@ -1,0 +1,15 @@
+.generation-price {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.65rem;
+}
+.generation-price del {
+  opacity: 0.5;
+  font-weight: 400;
+}
+.generation-price-discount {
+  font-size: 0.75em;
+  color: var(--text-muted, #b9b9bf);
+  font-weight: 400;
+}

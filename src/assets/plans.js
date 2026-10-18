@@ -1,7 +1,7 @@
 export const plans = [
   {
-    id: 'starter',
-    name: 'STARTER',
+    id: 'basic',
+    name: 'BASIC',
     caption: 'Первый шаг к большим идеям',
     price: null,
     generationLimit: null,

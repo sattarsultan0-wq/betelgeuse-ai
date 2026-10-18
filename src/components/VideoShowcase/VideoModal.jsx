@@ -1,4 +1,5 @@
 import { useI18n } from '../../i18n/index';
+import { priceLabel, generationPriceLabel } from '../../services/pricing';
 import { useEffect, useState } from 'react';
 import { Download, ImagePlus, LoaderCircle, Sparkles, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -8,6 +9,8 @@ import { useGeneration } from '../../hooks/useGeneration';
 import { downloadVideo } from '../../services/api';
 import { PHOTO_TYPES, MAX_PHOTO_BYTES } from '../../services/trendUploads';
 import useInlineVideo from '../../hooks/useInlineVideo';
+import useGenerationPrice from '../../hooks/useGenerationPrice';
+import GenerationPrice from '../Pricing/GenerationPrice';
 
 const labels = {
   idle: 'Добавьте фотографии',
@@ -75,6 +78,10 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
   const { t } = useI18n();
   const { user, setDialog, refresh } = useAuth();
   const trendId = item.trendId || item.id;
+  const { quote } = useGenerationPrice(
+    user && item.available ? { trendId } : null,
+    '/trends/estimate',
+  );
   const [files, setFiles] = useState([]),
     [mediaError, setMediaError] = useState('');
   const {
@@ -132,7 +139,11 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
       setError(`Добавьте минимум ${minPhotos} фотографий.`);
       return;
     }
-    await submitTrend(trendId, photos);
+    if (!pendingSubmission && !recovering && !quote?.canGenerate) {
+      setError(quote?.sufficientBalance === false ? 'Недостаточно кредитов.' : 'Цена не указана');
+      return;
+    }
+    await submitTrend(trendId, photos, quote?.priceConfirmation);
     refresh().catch(() => {});
   }
   const closingBlocked =
@@ -256,7 +267,7 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
                 (user &&
                   !pendingSubmission &&
                   !recovering &&
-                  (!item.available || photos.length < minPhotos))
+                  (!item.available || !quote?.canGenerate || photos.length < minPhotos))
               }
             >
               <Sparkles size={17} />
@@ -281,11 +292,20 @@ function VideoModalContent({ item, onClose, open, onExitComplete }) {
             </button>
           )}
           {user && (
+            <small>
+              {generation ? (
+                generationPriceLabel(generation, t)
+              ) : (
+                <GenerationPrice quote={user ? quote : item.pricing} />
+              )}
+            </small>
+          )}
+          {user && (
             <p className="muted">
               {t(
                 user.isAdmin
                   ? 'Администратор · без списания кредитов'
-                  : `Доступная квота: ${user.generationCredits} · Стоимость: ${item.quotaCost || 1} ед.`,
+                  : `Доступно ${user.generationCredits} кредитов`,
               )}
             </p>
           )}

@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import ModelIdentity from './ModelIdentity';
+import { priceLabel } from '../../services/pricing';
 
 export default function ModelCarousel({ models, onSelect, loading, error }) {
   const { t } = useI18n();
@@ -136,6 +137,7 @@ export default function ModelCarousel({ models, onSelect, loading, error }) {
             onClick={() => onSelect(model)}
           >
             <ModelIdentity model={model} />
+            <small className="wf-pro-model-price">{priceLabel(model.pricing, t)}</small>
           </button>
         ))}
         {!catalog.length && (
