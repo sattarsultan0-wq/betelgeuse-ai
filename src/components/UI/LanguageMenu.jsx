@@ -13,7 +13,7 @@ export default function LanguageMenu() {
   const id = useId();
   useEffect(() => {
     if (!open) return;
-    menu.current?.querySelector('[aria-checked="true"]')?.focus();
+    menu.current?.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true });
     const outside = (event) => {
       if (!root.current?.contains(event.target)) setOpen(false);
     };
@@ -57,7 +57,7 @@ export default function LanguageMenu() {
               : event.key === 'End'
                 ? items.length - 1
                 : (current + (event.key === 'ArrowUp' ? -1 : 1) + items.length) % items.length;
-          items[next]?.focus();
+          items[next]?.focus({ preventScroll: true });
         }
         if (event.key === 'Tab') setOpen(false);
       }}
@@ -79,33 +79,40 @@ export default function LanguageMenu() {
         aria-label={t('Выбрать язык')}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-controls={open ? id : undefined}
+        aria-controls={id}
         onClick={() => setOpen((value) => !value)}
       >
         <Globe size={15} aria-hidden="true" />
         <span>{language.toUpperCase()}</span>
         <ChevronDown size={12} aria-hidden="true" />
       </button>
-      {open && (
-        <div ref={menu} id={id} role="menu" aria-label={t('Язык')} className="language-options">
-          {languages.map(({ code, label }) => (
-            <button
-              key={code}
-              type="button"
-              role="menuitemradio"
-              aria-checked={language === code}
-              lang={code}
-              onClick={() => {
-                setLanguage(code);
-                close();
-              }}
-            >
-              <span>{label}</span>
-              {language === code && <Check size={14} aria-hidden="true" />}
-            </button>
-          ))}
-        </div>
-      )}
+      <div
+        ref={menu}
+        id={id}
+        role="menu"
+        aria-label={t('Язык')}
+        className="language-options"
+        data-open={open}
+        aria-hidden={!open}
+        inert={!open}
+      >
+        {languages.map(({ code, label }) => (
+          <button
+            key={code}
+            type="button"
+            role="menuitemradio"
+            aria-checked={language === code}
+            lang={code}
+            onClick={() => {
+              setLanguage(code);
+              close();
+            }}
+          >
+            <span>{label}</span>
+            {language === code && <Check size={14} aria-hidden="true" />}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

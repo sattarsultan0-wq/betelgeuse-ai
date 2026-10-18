@@ -1,11 +1,12 @@
 import { useI18n } from '../../i18n/index';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Menu, X, ArrowUpRight, LogOut, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Brand from '../UI/Brand';
 import { useAuth } from '../../context/AuthContext';
 import HeaderGlass from './HeaderGlass';
 import LanguageMenu from '../UI/LanguageMenu';
+import MobileHeader from './MobileHeader';
 import './Header.css';
 const links = [
   ['Главная', 'home'],
@@ -13,7 +14,18 @@ const links = [
   ['Создавать', 'generator'],
   ['Тарифы', 'pricing'],
 ];
+const mobileQuery = '(max-width: 800px)';
+function subscribeToViewport(callback) {
+  const query = window.matchMedia(mobileQuery);
+  query.addEventListener('change', callback);
+  return () => query.removeEventListener('change', callback);
+}
+const isMobileViewport = () => window.matchMedia(mobileQuery).matches;
 export default function Header() {
+  const mobile = useSyncExternalStore(subscribeToViewport, isMobileViewport, () => false);
+  return mobile ? <MobileHeader links={links} /> : <DesktopHeader />;
+}
+function DesktopHeader() {
   const { t } = useI18n();
   const [scrolled, setScrolled] = useState(false),
     [open, setOpen] = useState(false),

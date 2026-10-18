@@ -113,7 +113,7 @@ export default function AuthDialog() {
             <Star />
             <span>BETELGEUSE</span>
           </div>
-          <div className="auth-visual-art" />
+          <div className="auth-visual-art"><img src="/images/neitron-star.jpg" /></div>
           <div className="auth-visual-copy">
             <span className="eyebrow">{t('ТВОЯ НОВАЯ ОРБИТА')}</span>
             <p>

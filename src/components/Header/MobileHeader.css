@@ -1,0 +1,202 @@
+.mobile-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  padding-top: var(--safe-top);
+  color: #fff;
+  background: linear-gradient(180deg, #000000, #21212176 70%, #ad272700);
+}
+.mobile-header-solid {
+  background: linear-gradient(180deg, #000000, #21212176 70%, #ad272700);
+}
+.mobile-header-bar {
+  height: 88px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
+}
+.mobile-menu-toggle,
+.mobile-account-logout,
+.mobile-account-admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #ffffff24;
+  border-radius: 14px;
+  background: #ffffff08;
+}
+.mobile-menu-toggle {
+  justify-self: start;
+}
+.mobile-header-brand .brand {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.mobile-header-brand .brand .star {
+  width: 36px;
+  height: 36px;
+}
+.mobile-header-brand .brand-dot {
+  font-size: 6px;
+  margin-left: 2px;
+}
+.mobile-header-bar > .language-menu {
+  justify-self: end;
+  color: #fff;
+}
+.mobile-header-bar button{
+  border: none;
+
+  background: #00000011;
+  backdrop-filter: blur(5px);
+  
+  /* Вендорный префикс для поддержки в Safari */
+  -webkit-backdrop-filter: blur(5px);
+}
+.language-menu button{
+  border: none;
+
+  background: #00000011;
+  backdrop-filter: blur(5px);
+  
+  /* Вендорный префикс для поддержки в Safari */
+  -webkit-backdrop-filter: blur(5px);
+}
+.mobile-header .language-trigger {
+  min-height: 44px;
+  gap: 5px;
+  padding-inline: 9px;
+  border-color: #ffffff24;
+  border-radius: 14px;
+  background: #ffffff08;
+  font-size: 10px;
+}
+.mobile-header .language-options {
+  z-index: 2;
+}
+.mobile-header-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: max(16px, env(safe-area-inset-left));
+  right: max(16px, env(safe-area-inset-right));
+  max-height: calc(100dvh - 112px - var(--safe-top) - var(--safe-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  border: 1px solid #ffffff24;
+  border-radius: 22px;
+  background: #121212;
+  box-shadow: 0 20px 50px #0006;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(calc(-100% - 24px));
+  transition:
+    transform 550ms cubic-bezier(0.22, 1.3, 0.36, 1),
+    opacity 240ms ease,
+    visibility 0s linear 550ms;
+}
+.mobile-header-panel[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  transition-delay: 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-header-panel {
+    transform: none;
+    transition: none;
+  }
+}
+.mobile-header-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ffffff1a;
+}
+.mobile-signup,
+.mobile-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid #ffffff2b;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.mobile-signup {
+  flex: 1;
+  background: #fff;
+  color: #111;
+}
+.mobile-login {
+  flex: 1;
+}
+.mobile-account-name {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 500;
+}
+.mobile-header-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 12px;
+}
+.mobile-header-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.mobile-header-nav a svg {
+  color: #999;
+}
+.mobile-header-nav a:hover,
+.mobile-menu-toggle:hover,
+.mobile-login:hover,
+.mobile-account-logout:hover,
+.mobile-account-admin:hover {
+  background: #ffffff12;
+}
+.mobile-signup:hover {
+  background: #e5e5e5;
+}
+.mobile-header-error {
+  margin: 8px 16px;
+  padding: 12px;
+  border: 1px solid #ffffff24;
+  border-radius: 12px;
+  background: #121212;
+}
+.mobile-header-panel{
+  border: none;
+
+  background: #7e7e7e24;
+  backdrop-filter: blur(12px);
+  
+  /* Вендорный префикс для поддержки в Safari */
+  -webkit-backdrop-filter: blur(12px);
+}
